@@ -1,0 +1,4 @@
+{
+  "problem": "Find the number of rectangles that can be formed inside a fixed regular dodecagon (12-gon) where each side of the rectangle lies on either a side or a diagonal of the dodecagon. The diagram below shows three of those rectangles.",
+  "answer": "315"
+}

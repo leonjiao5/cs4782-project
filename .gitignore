@@ -11,7 +11,4 @@ checkpoints/
 *.bin
 *.safetensors
 
-data/aime_2024/*.json
-data/aime_2025/*.json
-data/train/*
 !**/.gitkeep
