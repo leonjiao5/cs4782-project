@@ -1,6 +1,7 @@
 import os
 
-MODEL_NAME = ""
+MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
+LOAD_IN_4BIT = False
 RANK = 16
 ALPHA = 32
 TARGET_MODULES = ["q_proj", "k_proj", "v_proj", "o_proj"]

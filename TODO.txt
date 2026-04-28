@@ -1,4 +1,5 @@
 DoRA for AIME — working notes
+authors: Ryan Ye (rmy43), Boaz Ng (bn229), Leon Jiao (lsj47), Aadi Singla (ans262)
 
 deadlines:
 - poster: apr 30 / may 5 (presentation day)
@@ -13,24 +14,40 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 - forward needs to handle batched x; watch for shape bugs
 
 --- model ---
-- pick base model once we know GPU budget
+- primary candidate: Llama (proposal commits to Llama, 7B / 8B band)
+    - Llama-3.1-8B-Instruct  (default, gated -- need HF access)
+    - Llama-3.2-3B-Instruct  (smaller, easier on T4 without 4-bit)
+- alternates worth a look if Llama is a pain:
+    - Qwen2.5-Math-7B-Instruct  (math-pretrained; usually strongest on AIME OOTB)
+    - DeepSeek-R1-Distill-Qwen-7B  (reasoning-distilled, strong on AIME)
+    - mistralai/Mistral-7B-Instruct-v0.3  (ungated 7B fallback)
+- compute: Colab supports T4 (16GB), A100 (40GB), and H100 -- pick path per GPU:
+    - T4         -> fp16 + 4-bit base via bitsandbytes
+    - A100/H100  -> bf16, may not need quantization
 - default targets: q_proj, k_proj, v_proj, o_proj
 - maybe also gate_proj / up_proj / down_proj later
 - freeze everything except DoRA params (and lm_head?)
+- baselines: peft LoRA (paper comparison) + peft DoRA (sanity check on our impl)
 
 --- data ---
 - AIME 2024: Maxwell-Jia/AIME_2024  (30 rows = AIME I + II, fields: ID, Problem, Solution, Answer)
 - AIME 2025: MathArena/aime_2025    (30 rows, fields: problem_idx, problem, answer, problem_type)
 - only need problem + answer for eval -- drop the rest
-- normalize on load: 2024 has capitalized fields (Problem/Answer), 2025 is lowercase
+- normalize on load: 2024 has capitalized fields, 2025 is lowercase
 - answers are int64 in both; cast to str for comparison (AIME answers are 0-999)
 - 2024 ID prefix encodes contest ("2024-I-x" vs "2024-II-x"); 2025 has no I/II label
-- training corpus options: NuminaMath-CoT, OpenR1-Math-220k
+- training corpus shortlist (from proposal):
+    - HARP: human-annotated math reasoning  (https://arxiv.org/abs/2412.08819)
+    - Omni-Math: KbsdJames/Omni-MATH                  (~4K olympiad)
+    - MATH: DigitalLearningGmbH/MATH-lighteval        (~12.5K)
+    - math-datasets-100k: weijiezz/math-datasets-100k (100k aggregated; has clean AIME25 split)
+    - OpenMathInstruct-2: nvidia/OpenMathInstruct-2   (fallback if we need more scale)
+- cross-check training corpora for overlap with AIME 2024/2025 before training (data leakage!)
 - prompt format: chat template (likely) vs raw -- depends on base model
 
 --- train ---
 - AdamW, lr ~2e-4, cosine schedule, ~3% warmup
-- bf16 if A100/H100, else fp16
+- precision: bf16 on A100/H100, fp16 + 4-bit base on T4
 - gradient checkpointing on
 - save every N steps; eval AIME every M steps
 
@@ -40,8 +57,13 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 - two settings: greedy + n-sample majority (n=16 or 64)
 - pass@k for completeness
 
+--- experiments ---
+- main: DoRA(r) vs LoRA(r) at matched param budget on AIME 2024 + 2025
+- secondary: DoRA(r/2) vs LoRA(r) parameter-efficiency claim (paper Table 1 / Fig 2)
+- sanity: our custom DoRA vs peft's DoRA at same config -- should be within noise
+
 --- open questions ---
-- authors + netids
-- base model (Qwen2.5-Math? DeepSeek-R1-Distill? something else?)
-- training corpus
-- GPU resources available
+- exact LLM (Llama-3.1-8B vs 3.2-3B vs Qwen2.5-Math-7B vs DeepSeek-R1-Distill-7B)
+- which Colab GPU we're actually allocated (T4 / A100 / H100)
+- final training corpus (start with HARP, escalate if accuracy is flat)
+- whether to ship the half-rank DoRA experiment (depends on time + compute)

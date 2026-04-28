@@ -4,6 +4,7 @@ transformers
 accelerate
 datasets
 trl
+bitsandbytes
 numpy
 tqdm
 pyyaml
