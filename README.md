@@ -14,19 +14,24 @@ The paper's main claim that DoRA outperforms LoRA at a matched parameter budget,
 
 ## GitHub Contents
 
-- `code/` — DoRA layer, model wiring, train/eval scripts
-- `data/` — AIME 2024 / 2025 eval sets + training-corpus instructions
+- `code/` — DoRA layer, model wiring, train/eval scripts; `code/data_clean/` is the data prep package
+- `data/` — AIME 2024 / 2025 eval sets and training-corpus output (see `data/README.md`)
 - `results/` — figures, tables, logs
 - `poster/`, `report/` — final deliverables
 
 ## Re-implementation Details
 
-Custom `DoRALinear` in PyTorch. Primary base model is Llama (7B / 8B) per the proposal, with Qwen2.5-Math-7B and DeepSeek-R1-Distill-Qwen-7B as alternates. Baselines are stock LoRA (`peft`) and `peft`'s built-in DoRA (sanity check). Training corpus drawn from HARP / Omni-Math / MATH; eval is AIME 2024 + AIME 2025.
+Custom `DoRALinear` in PyTorch. Primary base model is Llama (7B / 8B) per the proposal, with Qwen2.5-Math-7B and DeepSeek-R1-Distill-Qwen-7B as alternates. Baselines are stock LoRA (`peft`) and `peft`'s built-in DoRA (sanity check). Training corpus is `DigitalLearningGmbH/MATH-lighteval` plus a 20K sub-sample of `AI-MO/NuminaMath-CoT`, filtered for AIME 2024/2025 leakage; eval is AIME 2024 + AIME 2025.
 
 ## Reproduction Steps
 
 ```
 pip install -r requirements.txt
+
+# build training data (one of: train_light, train, train_scale)
+python -m code.data_clean.build --tier train
+
+# train + eval
 python code/train.py --method dora
 python code/eval.py --checkpoint <path> --benchmark aime2024
 ```

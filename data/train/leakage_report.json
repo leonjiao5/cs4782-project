@@ -1,0 +1,9 @@
+{
+  "stage_2": 0,
+  "stage_3": 0,
+  "stage_4": 0,
+  "total_dropped": 0,
+  "total_kept": 27498,
+  "fuzzy_threshold": 0.6,
+  "suspicion_threshold": 0.4
+}

@@ -36,14 +36,29 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 - normalize on load: 2024 has capitalized fields, 2025 is lowercase
 - answers are int64 in both; cast to str for comparison (AIME answers are 0-999)
 - 2024 ID prefix encodes contest ("2024-I-x" vs "2024-II-x"); 2025 has no I/II label
-- training corpus shortlist (from proposal):
-    - HARP: human-annotated math reasoning  (https://arxiv.org/abs/2412.08819)
-    - Omni-Math: KbsdJames/Omni-MATH                  (~4K olympiad)
-    - MATH: DigitalLearningGmbH/MATH-lighteval        (~12.5K)
-    - math-datasets-100k: weijiezz/math-datasets-100k (100k aggregated; has clean AIME25 split)
-    - OpenMathInstruct-2: nvidia/OpenMathInstruct-2   (fallback if we need more scale)
-- cross-check training corpora for overlap with AIME 2024/2025 before training (data leakage!)
+- training corpora (locked):
+    - MATH-lighteval                                  -- DigitalLearningGmbH/MATH-lighteval (~7.5K)
+    - NuminaMath-CoT (sub-sample)                     -- AI-MO/NuminaMath-CoT
+    - OpenMathInstruct-2 (deferred for train_scale)   -- nvidia/OpenMathInstruct-2
+  dropped: HARP (no HF mirror), Omni-MATH (test-only), math-datasets-100k (no reasoning traces)
+- only AIME 2024 and AIME 2025 problems are off-limits; pre-2024 AIME / AMC / olympiad problems
+  are kept as training signal (do NOT drop the aops_forum / amc_aime sources wholesale)
 - prompt format: chat template (likely) vs raw -- depends on base model
+
+--- training data ---
+- code/data_clean/ is the data prep package (sources.py, leakage.py, build.py)
+- HF datasets cache (~/.cache/huggingface/datasets) avoids re-downloads across tier builds
+- run: python -m code.data_clean.build --tier {train_light,train,train_scale}
+- train_light : DONE (7,498 rows, math-lighteval only; 2 dropped for missing \boxed)
+- train       : DONE (27,498 rows = 7,498 lighteval + 20,000 NuminaMath sub-sample)
+                NuminaMath sub-sample includes aops_forum, amc_aime, olympiads, etc.
+                stage 2-4 leakage filter ran; 0 AIME 2024/2025 matches in the sub-sample
+                (verified: filter catches verbatim AIME injection; no row scores Jaccard>=0.2)
+- train_scale : TODO (OpenMathInstruct-2 download + filter pending)
+- every output row: solution contains \boxed{...}, answer == extracted boxed -- enforced in sources.py
+- code/data.py:extract_boxed_answer is the canonical extractor, used both at data prep and at eval
+- audit log: results/logs/leakage_drops.jsonl  (empty for current build; safety net only)
+- NuminaMath default sub-sample: 20K, seed=42 (tune later)
 
 --- train ---
 - AdamW, lr ~2e-4, cosine schedule, ~3% warmup
@@ -65,5 +80,6 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 --- open questions ---
 - exact LLM (Llama-3.1-8B vs 3.2-3B vs Qwen2.5-Math-7B vs DeepSeek-R1-Distill-7B)
 - which Colab GPU we're actually allocated (T4 / A100 / H100)
-- final training corpus (start with HARP, escalate if accuracy is flat)
 - whether to ship the half-rank DoRA experiment (depends on time + compute)
+- whether 20K NuminaMath sub-sample is enough; tune up if accuracy is flat
+- when to run train_scale (and at what OMI-2 sub-sample size)

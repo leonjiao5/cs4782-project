@@ -11,4 +11,7 @@ checkpoints/
 *.bin
 *.safetensors
 
+data/train_scale/*.jsonl
+results/logs/leakage_drops.jsonl
+
 !**/.gitkeep

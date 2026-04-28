@@ -1,0 +1,4 @@
+{
+  "skipped": true,
+  "reason": "MATH-lighteval pre-dates AIME 2024/2025; no leakage filter needed"
+}
