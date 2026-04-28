@@ -19,11 +19,14 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 - freeze everything except DoRA params (and lm_head?)
 
 --- data ---
-- AIME 2024: Maxwell-Jia/AIME_2024  (verify exact id)
-- AIME 2025: yentinglin/aime_2025   (verify exact id)
+- AIME 2024: Maxwell-Jia/AIME_2024  (30 rows = AIME I + II, fields: ID, Problem, Solution, Answer)
+- AIME 2025: MathArena/aime_2025    (30 rows, fields: problem_idx, problem, answer, problem_type)
+- only need problem + answer for eval -- drop the rest
+- normalize on load: 2024 has capitalized fields (Problem/Answer), 2025 is lowercase
+- answers are int64 in both; cast to str for comparison (AIME answers are 0-999)
+- 2024 ID prefix encodes contest ("2024-I-x" vs "2024-II-x"); 2025 has no I/II label
 - training corpus options: NuminaMath-CoT, OpenR1-Math-220k
 - prompt format: chat template (likely) vs raw -- depends on base model
-- on-disk schema: {"problem": str, "answer": str}
 
 --- train ---
 - AdamW, lr ~2e-4, cosine schedule, ~3% warmup

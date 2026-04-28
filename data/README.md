@@ -2,12 +2,15 @@
 
 ## AIME 2024 / 2025
 
-Pulled from HuggingFace. Exact dataset IDs are still being verified — see `../TODO.txt`.
+Pulled from HuggingFace via the `datasets` library. Both years are 30 problems (AIME I + II combined).
 
-After download each problem lands in `aime_2024/` or `aime_2025/` as JSON:
+- AIME 2024: [`Maxwell-Jia/AIME_2024`](https://huggingface.co/datasets/Maxwell-Jia/AIME_2024) — fields: `ID`, `Problem`, `Solution`, `Answer`
+- AIME 2025: [`MathArena/aime_2025`](https://huggingface.co/datasets/MathArena/aime_2025) — fields: `problem_idx`, `problem`, `answer`, `problem_type`
+
+We only use the problem and answer for evaluation. The loader in `code/data.py` normalizes both to lowercase `{problem, answer}` and writes one JSON per problem into `aime_2024/` or `aime_2025/`:
 
 ```
-{"problem": "...", "answer": "..."}
+{"problem": "...", "answer": "42"}
 ```
 
 ## Training corpus
