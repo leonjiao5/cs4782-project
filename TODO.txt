@@ -1,0 +1,44 @@
+DoRA for AIME — working notes
+
+deadlines:
+- poster: apr 30 / may 5 (presentation day)
+- repo + 2-page report: may 12
+
+--- dora_layers ---
+W = m * (W0 + BA) / ||W0 + BA||_c
+- m is trainable (per-column magnitude vector)
+- ||.||_c is column-wise L2 norm
+- detach the norm in the denominator -- gradient trick from sec 4.3
+- init: m = ||W0||_c, A ~ kaiming, B = 0  (so initial W = W0, no perturbation)
+- forward needs to handle batched x; watch for shape bugs
+
+--- model ---
+- pick base model once we know GPU budget
+- default targets: q_proj, k_proj, v_proj, o_proj
+- maybe also gate_proj / up_proj / down_proj later
+- freeze everything except DoRA params (and lm_head?)
+
+--- data ---
+- AIME 2024: Maxwell-Jia/AIME_2024  (verify exact id)
+- AIME 2025: yentinglin/aime_2025   (verify exact id)
+- training corpus options: NuminaMath-CoT, OpenR1-Math-220k
+- prompt format: chat template (likely) vs raw -- depends on base model
+- on-disk schema: {"problem": str, "answer": str}
+
+--- train ---
+- AdamW, lr ~2e-4, cosine schedule, ~3% warmup
+- bf16 if A100/H100, else fp16
+- gradient checkpointing on
+- save every N steps; eval AIME every M steps
+
+--- eval ---
+- AIME answers are integers 0-999
+- extract via \boxed{...}
+- two settings: greedy + n-sample majority (n=16 or 64)
+- pass@k for completeness
+
+--- open questions ---
+- authors + netids
+- base model (Qwen2.5-Math? DeepSeek-R1-Distill? something else?)
+- training corpus
+- GPU resources available

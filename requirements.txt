@@ -1,2 +1,9 @@
 torch
 peft
+transformers
+accelerate
+datasets
+trl
+numpy
+tqdm
+pyyaml
