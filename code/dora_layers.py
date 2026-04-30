@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 class DoRALinear(nn.Module):
     def __init__(self, base: nn.Linear, rank: int, alpha: float, dropout: float):
@@ -25,7 +25,19 @@ class DoRALinear(nn.Module):
         self.merged = False
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        if self.merged:
+            return self.base(x)
+        
+        base_weights = self.base.weight
+        lora_update = (self.lora_B @ self.loraA) * self.scaling
+        direction = base_weights + lora_update
+        
+        column_norm = direction.norm(p=2, dim=1, keepdim=True)
+        direction_comp = direction / column_norm
+
+        final_weight = self.m.unsqueeze(1) * direction_comp
+        x = self.dropout(x)
+        return F.linear(x, final_weight, self.base.bias)
 
 
 def apply_dora_to_module(model: nn.Module, target_names, rank: int, alpha: float) -> nn.Module:
