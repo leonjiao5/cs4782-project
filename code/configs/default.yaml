@@ -2,11 +2,17 @@ model_name: meta-llama/Llama-3.1-8B-Instruct
 load_in_4bit: false
 rank: 16
 alpha: 32
+dropout: 0.05
 target_modules:
   - q_proj
   - k_proj
   - v_proj
-  - o_proj
+  - up_proj
+  - down_proj
 lr: 2.0e-4
 max_seq_len: 4096
 seed: 42
+epochs: 3
+batch_size: 16
+per_device_batch_size: 1
+warmup_ratio: 0.03

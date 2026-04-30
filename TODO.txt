@@ -159,27 +159,36 @@ stretch (skip unless time permits):
 - DVoRA: DoRA + VeRA combo (sec 5.4)
 
 --- implementation tasks ---
-ordered, owner unassigned (claim in standup):
+DONE:
+4. code/model.py::load_base_model        -- bf16 + 4-bit NF4 via bitsandbytes, device_map=auto
+5. code/model.py::inject_lora_baseline   -- peft LoraConfig, handles 4-bit kbit prep
+   code/model.py::inject_peft_dora_baseline -- same + use_dora=True
+   (inject_dora still raises NotImplementedError -- scratch DoRA coming next)
+6. code/data.py::load_aime               -- globs data/aime_{year}/*.json, 30 problems each
+   code/data.py::load_train_corpus       -- reads data/{tier}/{tier}.jsonl
+   code/data.py::format_prompt           -- apply_chat_template (eval, add_generation_prompt=True)
+   code/data.py::format_training_example -- apply_chat_template (train, full conversation)
+   code/data.py::extract_boxed_answer    -- already done, unchanged
+7. code/utils.py::is_correct             -- extract_boxed_answer then string compare
+   code/utils.py::pass_at_k             -- Chen et al. 2021 unbiased estimator
+   code/utils.py::load_config            -- yaml.safe_load wrapper
+8. code/train.py::main                   -- SFTTrainer; methods: lora / peft_dora / none
+                                            auto-computes grad_accum from batch_size/per_device
+                                            saves checkpoint + run_config.json to results/checkpoints/
+9. code/eval.py::main                    -- auto-detects peft vs zero-shot from adapter_config.json
+                                            greedy + n-sample majority vote + pass@k table
+                                            writes results/tables/{ckpt}_{benchmark}.json
+   code/config.py                        -- updated: TARGET_MODULES=QKVUD, added DROPOUT/EPOCHS/etc.
+   code/configs/default.yaml             -- synced with config.py
+
+TODO (scratch DoRA, then grad check):
 1. code/dora_layers.py::DoRALinear.forward -- Eq (5) + detach trick + dropout on LoRA branch
 2. code/dora_layers.py::DoRALinear.merge / .unmerge -- fold/unfold for inference
 3. code/dora_layers.py::apply_dora_to_module -- recursively swap target Linear -> DoRALinear,
    freeze base, return list of trainable params
-4. code/model.py::load_base_model -- HF AutoModelForCausalLM, bf16 / 4-bit option (bnb config)
-5. code/model.py::inject_dora (scratch) + inject_lora_baseline + inject_peft_dora_baseline
-   (the latter two via peft.get_peft_model + LoraConfig)
-6. code/data.py::load_aime, load_train_corpus, format_prompt (chat template)
-   extract_boxed_answer is DONE
-7. code/utils.py::is_correct (string equality on boxed int, after \boxed{} extraction),
-   pass_at_k (standard unbiased estimator)
-8. code/train.py::main -- config -> model -> inject method -> AdamW + cosine ->
-   grad checkpoint -> train loop -> periodic AIME eval -> save checkpoints
-9. code/eval.py::main -- load checkpoint -> generate (greedy or n-sample) ->
-   score boxed answers -> write results/tables/<run_id>.json
-10. tests/test_dora_grad.py -- 2-layer toy: scratch DoRA grads vs peft DoRA grads,
-    assert close within fp tolerance (sanity check before scale-up)
-
-config tweaks needed:
-- code/config.py + code/configs/default.yaml: change TARGET_MODULES from QKVO to QKVUD
+   code/model.py::inject_dora            -- wire up apply_dora_to_module
+10. tests/test_dora_grad.py              -- 2-layer toy: scratch DoRA grads vs peft DoRA grads,
+    assert close within fp tolerance (sanity check BEFORE running full train)
 
 --- open questions ---
 - exact LLM (Llama-3.1-8B vs 3.2-3B vs Qwen2.5-Math-7B vs DeepSeek-R1-Distill-7B)
