@@ -1,17 +1,55 @@
 DoRA for AIME — working notes
 authors: Ryan Ye (rmy43), Boaz Ng (bn229), Leon Jiao (lsj47), Aadi Singla (ans262)
+paper: Liu et al. 2024, "DoRA: Weight-Decomposed Low-Rank Adaptation" (ICML 2024)
+       /DoRA_paper.pdf in repo root
+ref impl: github.com/NVlabs/DoRA  +  HuggingFace peft (peft.LoraConfig(use_dora=True))
 
 deadlines:
-- poster: apr 30 / may 5 (presentation day)
+- poster: may 5 (presentation day)
 - repo + 2-page report: may 12
 
 --- dora_layers ---
-W = m * (W0 + BA) / ||W0 + BA||_c
-- m is trainable (per-column magnitude vector)
-- ||.||_c is column-wise L2 norm
-- detach the norm in the denominator -- gradient trick from sec 4.3
-- init: m = ||W0||_c, A ~ kaiming, B = 0  (so initial W = W0, no perturbation)
-- forward needs to handle batched x; watch for shape bugs
+core equation (Eq. 5 in paper):
+    W' = m * (W0 + s*BA) / ||W0 + s*BA||_c
+  where:
+    - W0 ∈ R^(out, in) is the frozen pretrained weight
+    - B ∈ R^(out, r), A ∈ R^(r, in)  — low-rank LoRA factors
+    - s = alpha / rank  (LoRA scaling; paper folds it into BA, but we keep it explicit)
+    - m ∈ R^(out,)     — trainable per-output-feature magnitude
+    - ||.||_c          — column-wise L2 norm. NVlabs ref uses weight.norm(p=2, dim=1)
+                         on PyTorch (out, in) weight, giving one scalar per output feature.
+                         existing dora_layers.py init matches this convention -- keep.
+
+init (must give W' == W0 at step 0):
+- m = ||W0||_c       (frozen-weight column norms; existing code is correct)
+- A ~ kaiming_uniform_(a=0)
+- B = 0              (so s*BA = 0, numerator = W0, denom = ||W0||_c, m cancels norm -> W0)
+
+trainable: m, lora_A, lora_B. frozen: base.weight, base.bias.
+per-layer trainable count: out + r*(in + out)
+
+detach trick (Eq. 11, sec 4.3) -- REQUIRED:
+- treat ||V + dV||_c = ||W0 + s*BA||_c as a CONSTANT (call .detach()) in the denominator
+- ablation in paper: -24.4% memory on LLaMA-7B, ~0.2pt accuracy delta
+- without this, gradient of ||.||_c flows through B and A and blows up training memory
+
+forward (efficient, single matmul):
+    weight_eff = W0 + s*BA
+    c = weight_eff.norm(p=2, dim=1).detach()      # shape (out,)
+    weight_scaled = (m / c).unsqueeze(1) * weight_eff   # broadcast over rows
+    y = F.linear(self.dropout(x), weight_scaled, base.bias)
+- input x can be (B, T, in); F.linear handles batched shapes
+- dropout applied to LoRA branch input, matching peft DoRA convention
+- dropout p = 0.05 default (paper Table 8)
+
+merge / unmerge (zero inference overhead):
+- merge(): bake m * weight_eff / c into base.weight, set self.merged = True
+- unmerge(): restore W0 (cache it on init or recompute from m,A,B)
+- inference path uses merged weights -> identical latency to base model
+
+gradient sanity check (do this BEFORE scaling up):
+- run scratch DoRA vs peft.LoraConfig(use_dora=True) on a 2-layer toy
+- same init, same input -> grads on m/A/B should match within fp tolerance
 
 --- model ---
 - primary candidate: Llama (proposal commits to Llama, 7B / 8B band)
@@ -22,12 +60,20 @@ W = m * (W0 + BA) / ||W0 + BA||_c
     - DeepSeek-R1-Distill-Qwen-7B  (reasoning-distilled, strong on AIME)
     - mistralai/Mistral-7B-Instruct-v0.3  (ungated 7B fallback)
 - compute: Colab supports T4 (16GB), A100 (40GB), and H100 -- pick path per GPU:
-    - T4         -> fp16 + 4-bit base via bitsandbytes
+    - T4         -> fp16 + 4-bit base via bitsandbytes  (motivates QDoRA, see E5)
     - A100/H100  -> bf16, may not need quantization
-- default targets: q_proj, k_proj, v_proj, o_proj
-- maybe also gate_proj / up_proj / down_proj later
-- freeze everything except DoRA params (and lm_head?)
-- baselines: peft LoRA (paper comparison) + peft DoRA (sanity check on our impl)
+- target modules: q_proj, k_proj, v_proj, up_proj, down_proj  (paper Table 8)
+    - paper EXCLUDES o_proj and gate_proj for LLaMA commonsense reasoning
+    - current configs/default.yaml is QKVO -- needs update to QKVUD
+    - keep o_proj / gate_proj as a stretch ablation
+- freeze everything except DoRA params (m, A, B). do NOT train lm_head.
+- expected trainable %: ~0.71% for LLaMA3-8B at r=16 / target=QKVUD (paper Table 1)
+
+baselines (final list):
+- B0: zero-shot pretrained Llama on AIME -- accuracy floor, no fine-tuning
+- B1: peft-imported LoRA  (peft.LoraConfig(...))         -- primary headline comparison
+- B2: peft-imported DoRA  (peft.LoraConfig(use_dora=True)) -- sanity check our scratch DoRA
+NOTE: we are NOT writing LoRA from scratch; peft handles it. our scratch impl is DoRA only.
 
 --- data ---
 - AIME 2024: Maxwell-Jia/AIME_2024  (30 rows = AIME I + II, fields: ID, Problem, Solution, Answer)
@@ -61,25 +107,86 @@ W = m * (W0 + BA) / ||W0 + BA||_c
 - NuminaMath default sub-sample: 20K, seed=42 (tune later)
 
 --- train ---
-- AdamW, lr ~2e-4, cosine schedule, ~3% warmup
+optimizer / schedule:
+- AdamW, cosine schedule, ~3% warmup
+  (paper uses Linear + 100 warmup steps; we keep cosine -- more standard for math fine-tuning)
 - precision: bf16 on A100/H100, fp16 + 4-bit base on T4
 - gradient checkpointing on
 - save every N steps; eval AIME every M steps
 
+hyperparameters (paper Table 8 anchors; tune for AIME):
+- rank r: 16 default. always alpha = 2r in the paper.
+- alpha: 32 (paired with r=16)
+- dropout: 0.05
+- batch size: 16 effective (use grad accum if device-batch < 16)
+- epochs: 3 (adjust if our train corpus is materially larger than paper's)
+- LR per model (paper Table 8 -> small sweep on validation subset):
+    - LLaMA3-8B: paper 1e-4, sweep [5e-5, 1e-4, 2e-4]
+    - LLaMA2-7B: paper 2e-4, sweep [1e-4, 2e-4, 3e-4]
+    - LLaMA-7B : paper 2e-4
+- max_seq_len: 4096 (current config)
+
 --- eval ---
 - AIME answers are integers 0-999
-- extract via \boxed{...}
+- extract via \boxed{...}  (code/data.py::extract_boxed_answer)
 - two settings: greedy + n-sample majority (n=16 or 64)
 - pass@k for completeness
+- SAME eval recipe across B0/B1/B2 + our scratch DoRA -- no per-method tweaks
+- write all results to results/tables/<run_id>.json for the report
 
 --- experiments ---
-- main: DoRA(r) vs LoRA(r) at matched param budget on AIME 2024 + 2025
-- secondary: DoRA(r/2) vs LoRA(r) parameter-efficiency claim (paper Table 1 / Fig 2)
-- sanity: our custom DoRA vs peft's DoRA at same config -- should be within noise
+E1 - main (headline):
+    scratch DoRA(r=16) vs peft LoRA(r=16) on AIME 2024 + 2025
+    same train corpus, same LR, same epochs -> direct DoRA-vs-LoRA comparison
+E2 - sanity:
+    scratch DoRA(r=16) vs peft DoRA(r=16) at identical config
+    must be within run-to-run noise -- validates our impl is faithful
+E3 - zero-shot floor:
+    pretrained Llama on AIME with no fine-tuning
+    establishes the unadapted baseline (B0)
+E4 - rank sweep (paper Fig 5):
+    scratch DoRA + peft LoRA at r in {4, 8, 16, 32, 64}, alpha = 2r
+    paper claim: DoRA's lead WIDENS at low rank (LoRA collapses at r<=8 on commonsense)
+    -> does the same hold for math reasoning?
+E5 - QDoRA (paper sec 6.1):
+    scratch DoRA on 4-bit (NF4) base via bitsandbytes
+    motivated by T4 Colab (16GB). paper: QDoRA > QLoRA by 0.19/0.23 on Orca-Math.
+    open question: implement 4-bit dequant in our DoRALinear, or use peft's QDoRA wrapper?
+
+stretch (skip unless time permits):
+- DoRA-half-rank (DoRA†): scratch DoRA(r/2) vs peft LoRA(r) -- paper's parameter-efficiency claim (Table 1)
+- tuning granularity (Table 6): m on QKVOGUD, V on QKV only -- ~half params, still beats LoRA
+- DVoRA: DoRA + VeRA combo (sec 5.4)
+
+--- implementation tasks ---
+ordered, owner unassigned (claim in standup):
+1. code/dora_layers.py::DoRALinear.forward -- Eq (5) + detach trick + dropout on LoRA branch
+2. code/dora_layers.py::DoRALinear.merge / .unmerge -- fold/unfold for inference
+3. code/dora_layers.py::apply_dora_to_module -- recursively swap target Linear -> DoRALinear,
+   freeze base, return list of trainable params
+4. code/model.py::load_base_model -- HF AutoModelForCausalLM, bf16 / 4-bit option (bnb config)
+5. code/model.py::inject_dora (scratch) + inject_lora_baseline + inject_peft_dora_baseline
+   (the latter two via peft.get_peft_model + LoraConfig)
+6. code/data.py::load_aime, load_train_corpus, format_prompt (chat template)
+   extract_boxed_answer is DONE
+7. code/utils.py::is_correct (string equality on boxed int, after \boxed{} extraction),
+   pass_at_k (standard unbiased estimator)
+8. code/train.py::main -- config -> model -> inject method -> AdamW + cosine ->
+   grad checkpoint -> train loop -> periodic AIME eval -> save checkpoints
+9. code/eval.py::main -- load checkpoint -> generate (greedy or n-sample) ->
+   score boxed answers -> write results/tables/<run_id>.json
+10. tests/test_dora_grad.py -- 2-layer toy: scratch DoRA grads vs peft DoRA grads,
+    assert close within fp tolerance (sanity check before scale-up)
+
+config tweaks needed:
+- code/config.py + code/configs/default.yaml: change TARGET_MODULES from QKVO to QKVUD
 
 --- open questions ---
 - exact LLM (Llama-3.1-8B vs 3.2-3B vs Qwen2.5-Math-7B vs DeepSeek-R1-Distill-7B)
 - which Colab GPU we're actually allocated (T4 / A100 / H100)
-- whether to ship the half-rank DoRA experiment (depends on time + compute)
+- whether to ship E4 (rank sweep) at all 5 ranks or a subset {4, 16, 64} for time
+- QDoRA: write 4-bit dequant in our DoRALinear, or rely on peft's QDoRA wrapper?
+- LR per model -- needs a small-scale sweep before main runs
+- AIME-specific prompt template (raw vs chat) -- depends on base model
 - whether 20K NuminaMath sub-sample is enough; tune up if accuracy is flat
 - when to run train_scale (and at what OMI-2 sub-sample size)
