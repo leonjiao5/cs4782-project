@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import types
+
+from code.dora_layers import apply_dora_to_module
 
 
 def load_base_model(
@@ -76,5 +79,37 @@ def inject_peft_dora_baseline(
     return get_peft_model(model, config)
 
 
-def inject_dora(model: nn.Module, target_modules, rank: int, alpha: float) -> nn.Module:
-    raise NotImplementedError("scratch DoRA not yet implemented")
+def inject_dora(
+    model: nn.Module,
+    target_modules,
+    rank: int,
+    alpha: float,
+    dropout: float = 0.05,
+) -> nn.Module:
+    if getattr(model, "is_loaded_in_4bit", False) or getattr(model, "is_loaded_in_8bit", False):
+        from peft import prepare_model_for_kbit_training
+        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+
+    for param in model.parameters():
+        param.requires_grad = False
+
+    model, trainable_params = apply_dora_to_module(
+        model=model,
+        target_names=target_modules,
+        rank=rank,
+        alpha=alpha,
+        dropout=dropout,
+    )
+    if not trainable_params:
+        raise ValueError(f"No target linear modules matched target_modules={target_modules}")
+
+    model._dora_trainable_params = trainable_params
+
+    def _print_trainable_parameters(self):
+        trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        total = sum(p.numel() for p in self.parameters())
+        pct = 100.0 * trainable / total if total else 0.0
+        print(f"trainable params: {trainable:,} || all params: {total:,} || trainable%: {pct:.4f}")
+
+    model.print_trainable_parameters = types.MethodType(_print_trainable_parameters, model)
+    return model

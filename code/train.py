@@ -50,7 +50,7 @@ def main(args):
     elif args.method == "peft_dora":
         model = inject_peft_dora_baseline(model, target_modules, rank, alpha, dropout)
     elif args.method == "dora":
-        model = inject_dora(model, target_modules, rank, alpha)
+        model = inject_dora(model, target_modules, rank, alpha, dropout)
     elif args.method == "full":
         raise NotImplementedError("full fine-tuning not yet wired up")
 
