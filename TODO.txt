@@ -159,11 +159,15 @@ stretch (skip unless time permits):
 - DVoRA: DoRA + VeRA combo (sec 5.4)
 
 --- implementation tasks ---
-DONE:
+DONE (all code complete as of 2026-05-01):
+1. code/dora_layers.py::DoRALinear.forward -- Eq (5) + detach trick + dropout
+2. code/dora_layers.py::DoRALinear.merge / .unmerge -- fold/unfold with base weight cache
+3. code/dora_layers.py::apply_dora_to_module -- recursively swap target Linear -> DoRALinear,
+   freeze base, return list of trainable params
+   code/model.py::inject_dora            -- wire up apply_dora_to_module
 4. code/model.py::load_base_model        -- bf16 + 4-bit NF4 via bitsandbytes, device_map=auto
 5. code/model.py::inject_lora_baseline   -- peft LoraConfig, handles 4-bit kbit prep
    code/model.py::inject_peft_dora_baseline -- same + use_dora=True
-   (inject_dora still raises NotImplementedError -- scratch DoRA coming next)
 6. code/data.py::load_aime               -- globs data/aime_{year}/*.json, 30 problems each
    code/data.py::load_train_corpus       -- reads data/{tier}/{tier}.jsonl
    code/data.py::format_prompt           -- apply_chat_template (eval, add_generation_prompt=True)
@@ -172,23 +176,25 @@ DONE:
 7. code/utils.py::is_correct             -- extract_boxed_answer then string compare
    code/utils.py::pass_at_k             -- Chen et al. 2021 unbiased estimator
    code/utils.py::load_config            -- yaml.safe_load wrapper
-8. code/train.py::main                   -- SFTTrainer; methods: lora / peft_dora / none
-                                            auto-computes grad_accum from batch_size/per_device
-                                            saves checkpoint + run_config.json to results/checkpoints/
-9. code/eval.py::main                    -- auto-detects peft vs zero-shot from adapter_config.json
+8. code/train.py::main                   -- SFTTrainer; methods: lora / peft_dora / dora / none
+                                            method=dora saves dora_adapters.pt + dora_config.json
+                                            (adapter-only save; avoids writing ~14 GB full model)
+                                            saves run_config.json to results/checkpoints/
+9. code/eval.py::main                    -- detects peft (adapter_config.json), scratch DoRA
+                                            (dora_config.json), or zero-shot; scratch DoRA path
+                                            reconstructs arch via inject_dora then loads adapter
                                             greedy + n-sample majority vote + pass@k table
                                             writes results/tables/{ckpt}_{benchmark}.json
-   code/config.py                        -- updated: TARGET_MODULES=QKVUD, added DROPOUT/EPOCHS/etc.
+   code/config.py                        -- TARGET_MODULES=QKVUD, DROPOUT/EPOCHS/etc.
    code/configs/default.yaml             -- synced with config.py
+10. tests/test_dora_grad.py              -- init invariant, Eq.(5) forward, grad flow, detach trick,
+    merge/unmerge, apply_dora_to_module; peft DoRA output+grad comparison (skipped if peft absent)
+    run: python -m pytest tests/test_dora_grad.py -v
 
-TODO (scratch DoRA, then grad check):
-1. code/dora_layers.py::DoRALinear.forward -- Eq (5) + detach trick + dropout on LoRA branch
-2. code/dora_layers.py::DoRALinear.merge / .unmerge -- fold/unfold for inference
-3. code/dora_layers.py::apply_dora_to_module -- recursively swap target Linear -> DoRALinear,
-   freeze base, return list of trainable params
-   code/model.py::inject_dora            -- wire up apply_dora_to_module
-10. tests/test_dora_grad.py              -- 2-layer toy: scratch DoRA grads vs peft DoRA grads,
-    assert close within fp tolerance (sanity check BEFORE running full train)
+TODO:
+- data/train_scale/ : OpenMathInstruct-2 download + leakage filter still pending
+  run: python -m code.data_clean.build --tier train_scale
+- run gradient sanity check on Colab before full training (E2 / test_dora_grad.py)
 
 --- open questions ---
 - exact LLM (Llama-3.1-8B vs 3.2-3B vs Qwen2.5-Math-7B vs DeepSeek-R1-Distill-7B)
