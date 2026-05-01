@@ -17,10 +17,12 @@ from code.utils import is_correct, pass_at_k
 def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: bool):
     """
     Load model for eval:
-    - If checkpoint dir has adapter_config.json  → peft adapter on top of base model
-    - Otherwise (HF model name or plain dir)     → base model only (zero-shot)
+    - adapter_config.json present  → peft adapter (lora / peft_dora)
+    - dora_config.json present     → scratch DoRA (loads adapter weights only)
+    - otherwise                    → base model only (zero-shot)
     """
     adapter_cfg_path = os.path.join(checkpoint, "adapter_config.json")
+    dora_cfg_path    = os.path.join(checkpoint, "dora_config.json")
     dtype = torch.float16 if load_in_4bit else torch.bfloat16
 
     if os.path.isdir(checkpoint) and os.path.exists(adapter_cfg_path):
@@ -31,6 +33,26 @@ def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: b
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, checkpoint)
         model = model.merge_and_unload()
+
+    elif os.path.isdir(checkpoint) and os.path.exists(dora_cfg_path):
+        with open(dora_cfg_path) as f:
+            dora_cfg = json.load(f)
+        base_name = model_override or dora_cfg["model_name"]
+        model, tokenizer = load_base_model(base_name, dtype=dtype, load_in_4bit=load_in_4bit)
+        from code.model import inject_dora
+        model = inject_dora(
+            model,
+            dora_cfg["target_modules"],
+            dora_cfg["rank"],
+            dora_cfg["alpha"],
+            dora_cfg.get("dropout", 0.05),
+        )
+        adapter_path = os.path.join(checkpoint, "dora_adapters.pt")
+        state = torch.load(adapter_path, map_location="cpu", weights_only=True)
+        missing, unexpected = model.load_state_dict(state, strict=False)
+        if unexpected:
+            print(f"Warning: unexpected keys in dora_adapters.pt: {unexpected[:5]}")
+
     else:
         base_name = model_override or checkpoint
         model, tokenizer = load_base_model(base_name, dtype=dtype, load_in_4bit=load_in_4bit)

@@ -99,7 +99,31 @@ def main(args):
     )
 
     trainer.train()
-    trainer.save_model(output_dir)
+
+    if args.method == "dora":
+        # Save only the trainable adapter weights (m, lora_A, lora_B).
+        # Avoids writing a full ~14 GB model copy; base weights reload from HF at eval time.
+        dora_state = {
+            n: p.data.cpu()
+            for n, p in model.named_parameters()
+            if p.requires_grad
+        }
+        torch.save(dora_state, os.path.join(output_dir, "dora_adapters.pt"))
+        with open(os.path.join(output_dir, "dora_config.json"), "w") as f:
+            json.dump(
+                {
+                    "rank": rank,
+                    "alpha": alpha,
+                    "dropout": dropout,
+                    "target_modules": list(target_modules),
+                    "model_name": cfg["model_name"],
+                },
+                f,
+                indent=2,
+            )
+    else:
+        trainer.save_model(output_dir)
+
     tokenizer.save_pretrained(output_dir)
     print(f"Checkpoint saved to {output_dir}")
 
