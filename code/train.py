@@ -83,7 +83,9 @@ def main(args):
         fp16=(load_in_4bit and torch.cuda.is_available()),
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
-        save_strategy="epoch",
+        save_strategy=cfg.get("save_strategy", "steps"),
+        save_steps=cfg.get("save_steps", 200),
+        save_total_limit=cfg.get("save_total_limit", 5),
         logging_steps=20,
         report_to="none",
         remove_unused_columns=False,
@@ -98,7 +100,7 @@ def main(args):
         max_seq_length=cfg.get("max_seq_len", 4096),
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume)
 
     if args.method == "dora":
         # Save only the trainable adapter weights (m, lora_A, lora_B).
@@ -143,4 +145,6 @@ if __name__ == "__main__":
         default="train",
     )
     parser.add_argument("--output_dir", default="results/checkpoints")
+    parser.add_argument("--resume", default=None,
+                        help="Path to a Trainer checkpoint dir to resume from")
     main(parser.parse_args())

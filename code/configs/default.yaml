@@ -16,3 +16,6 @@ epochs: 3
 batch_size: 16
 per_device_batch_size: 1
 warmup_ratio: 0.03
+save_strategy: steps
+save_steps: 200
+save_total_limit: 5
