@@ -14,7 +14,13 @@ from code.model import load_base_model
 from code.utils import is_correct, pass_at_k
 
 
-def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: bool):
+def load_eval_model(
+    checkpoint: str,
+    model_override: str | None,
+    load_in_4bit: bool,
+    trust_remote_code: bool = False,
+    attn_implementation: str | None = None,
+):
     """
     Load model for eval:
     - adapter_config.json present  → peft adapter (lora / peft_dora)
@@ -29,7 +35,13 @@ def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: b
         with open(adapter_cfg_path) as f:
             adapter_cfg = json.load(f)
         base_name = model_override or adapter_cfg["base_model_name_or_path"]
-        model, tokenizer = load_base_model(base_name, dtype=dtype, load_in_4bit=load_in_4bit)
+        model, tokenizer = load_base_model(
+            base_name,
+            dtype=dtype,
+            load_in_4bit=load_in_4bit,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, checkpoint)
         model = model.merge_and_unload()
@@ -38,7 +50,13 @@ def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: b
         with open(dora_cfg_path) as f:
             dora_cfg = json.load(f)
         base_name = model_override or dora_cfg["model_name"]
-        model, tokenizer = load_base_model(base_name, dtype=dtype, load_in_4bit=load_in_4bit)
+        model, tokenizer = load_base_model(
+            base_name,
+            dtype=dtype,
+            load_in_4bit=load_in_4bit,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
         from code.model import inject_dora
         model = inject_dora(
             model,
@@ -55,7 +73,13 @@ def load_eval_model(checkpoint: str, model_override: str | None, load_in_4bit: b
 
     else:
         base_name = model_override or checkpoint
-        model, tokenizer = load_base_model(base_name, dtype=dtype, load_in_4bit=load_in_4bit)
+        model, tokenizer = load_base_model(
+            base_name,
+            dtype=dtype,
+            load_in_4bit=load_in_4bit,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
 
     model.eval()
     return model, tokenizer
@@ -77,9 +101,12 @@ def generate_responses(
     else:
         gen_kwargs = dict(do_sample=True, temperature=temperature, num_return_sequences=n)
 
+    pad_id = tokenizer.pad_token_id
+    if pad_id is None:
+        pad_id = tokenizer.eos_token_id
     gen_kwargs.update(
         max_new_tokens=max_new_tokens,
-        pad_token_id=tokenizer.eos_token_id,
+        pad_token_id=pad_id,
         eos_token_id=tokenizer.eos_token_id,
     )
 
@@ -102,6 +129,8 @@ def main(args):
         args.checkpoint,
         model_override=args.model,
         load_in_4bit=args.load_in_4bit,
+        trust_remote_code=args.trust_remote_code,
+        attn_implementation=args.attn_implementation,
     )
 
     year = int(args.benchmark.replace("aime", ""))
@@ -197,5 +226,15 @@ if __name__ == "__main__":
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--model", default=None, help="Base model name override")
     parser.add_argument("--load_in_4bit", action="store_true")
+    parser.add_argument(
+        "--trust_remote_code",
+        action="store_true",
+        help="Pass trust_remote_code=True when loading tokenizer/model from HF",
+    )
+    parser.add_argument(
+        "--attn_implementation",
+        default=None,
+        help="Optional attention backend, e.g. sdpa or flash_attention_2",
+    )
     parser.add_argument("--output", default=None, help="Override output JSON path")
     main(parser.parse_args())

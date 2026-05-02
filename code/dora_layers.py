@@ -13,14 +13,16 @@ class DoRALinear(nn.Module):
 
         in_features = base.in_features
         out_features = base.out_features
+        device = base.weight.device
+        dtype = base.weight.dtype
 
-        self.lora_A = nn.Parameter(torch.zeros((rank, in_features)))
-        self.lora_B = nn.Parameter(torch.zeros((out_features, rank)))
+        self.lora_A = nn.Parameter(torch.zeros((rank, in_features), device=device, dtype=dtype))
+        self.lora_B = nn.Parameter(torch.zeros((out_features, rank), device=device, dtype=dtype))
         nn.init.kaiming_uniform_(self.lora_A, a=0)
 
         with torch.no_grad():
             initial_weights = base.weight
-            self.m = nn.Parameter(initial_weights.norm(p=2, dim=1))
+            self.m = nn.Parameter(initial_weights.norm(p=2, dim=1).clone())
 
         for param in self.base.parameters():
             param.requires_grad = False

@@ -1,4 +1,8 @@
 model_name: Qwen/Qwen2.5-3B-Instruct
+# Qwen2.5 on the Hub uses standard AutoModel; set true only for custom checkpoints that need it.
+trust_remote_code: false
+# Optional: sdpa | flash_attention_2 | eager (omit for HF default)
+# attn_implementation: sdpa
 load_in_4bit: false
 rank: 16
 alpha: 32

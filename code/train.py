@@ -8,8 +8,7 @@ from datetime import datetime
 
 import torch
 from datasets import Dataset
-from transformers import TrainingArguments
-from trl import SFTTrainer
+from trl import SFTConfig, SFTTrainer
 
 from code.config import RESULTS_DIR
 from code.data import load_train_corpus, format_training_example
@@ -38,7 +37,13 @@ def main(args):
 
     load_in_4bit = cfg.get("load_in_4bit", False)
     dtype = torch.float16 if load_in_4bit else torch.bfloat16
-    model, tokenizer = load_base_model(cfg["model_name"], dtype=dtype, load_in_4bit=load_in_4bit)
+    model, tokenizer = load_base_model(
+        cfg["model_name"],
+        dtype=dtype,
+        load_in_4bit=load_in_4bit,
+        trust_remote_code=cfg.get("trust_remote_code", False),
+        attn_implementation=cfg.get("attn_implementation") or None,
+    )
 
     rank = cfg.get("rank", 16)
     alpha = cfg.get("alpha", 32)
@@ -56,6 +61,11 @@ def main(args):
 
     model.print_trainable_parameters()
 
+    # Frozen backbone + gradient checkpointing: inputs must require grad for backward
+    # through checkpointed segments (applies to peft and scratch DoRA).
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+
     corpus = load_train_corpus(args.tier)
     train_dataset = build_dataset(corpus, tokenizer)
     print(f"Training on {len(train_dataset)} examples (tier={args.tier})")
@@ -71,7 +81,7 @@ def main(args):
     per_device_batch = cfg.get("per_device_batch_size", 1)
     grad_accum = max(1, effective_batch // per_device_batch)
 
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         output_dir=output_dir,
         num_train_epochs=cfg.get("epochs", 3),
         per_device_train_batch_size=per_device_batch,
@@ -79,7 +89,10 @@ def main(args):
         learning_rate=cfg.get("lr", 2e-4),
         lr_scheduler_type="cosine",
         warmup_ratio=cfg.get("warmup_ratio", 0.03),
-        bf16=(not load_in_4bit and torch.cuda.is_available()),
+        bf16=(
+            not load_in_4bit
+            and (torch.cuda.is_available() or getattr(torch.backends, "mps", None) and torch.backends.mps.is_available())
+        ),
         fp16=(load_in_4bit and torch.cuda.is_available()),
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
@@ -89,6 +102,8 @@ def main(args):
         logging_steps=20,
         report_to="none",
         remove_unused_columns=False,
+        dataset_text_field="text",
+        max_length=cfg.get("max_seq_len", 4096),
     )
 
     trainer = SFTTrainer(
@@ -96,8 +111,6 @@ def main(args):
         args=training_args,
         train_dataset=train_dataset,
         processing_class=tokenizer,
-        dataset_text_field="text",
-        max_seq_length=cfg.get("max_seq_len", 4096),
     )
 
     trainer.train(resume_from_checkpoint=args.resume)

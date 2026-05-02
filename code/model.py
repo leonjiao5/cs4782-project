@@ -11,11 +11,19 @@ def load_base_model(
     dtype=torch.bfloat16,
     device: str = "cuda",
     load_in_4bit: bool = False,
+    trust_remote_code: bool = False,
+    attn_implementation: str | None = None,
 ):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name, trust_remote_code=trust_remote_code
+    )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
+
+    from_pretrained_kw: dict = {"device_map": "auto", "trust_remote_code": trust_remote_code}
+    if attn_implementation:
+        from_pretrained_kw["attn_implementation"] = attn_implementation
 
     if load_in_4bit:
         from transformers import BitsAndBytesConfig
@@ -26,12 +34,23 @@ def load_base_model(
             bnb_4bit_quant_type="nf4",
         )
         model = AutoModelForCausalLM.from_pretrained(
-            model_name, quantization_config=bnb_cfg, device_map="auto"
+            model_name,
+            quantization_config=bnb_cfg,
+            **from_pretrained_kw,
         )
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            model_name, torch_dtype=dtype, device_map="auto"
+            model_name,
+            torch_dtype=dtype,
+            **from_pretrained_kw,
         )
+
+    # Qwen and some other CausalLMs ship with pad_token_id=None on config; align with tokenizer
+    # so Trainer/collators and generation behave consistently.
+    if getattr(model.config, "pad_token_id", None) is None and tokenizer.pad_token_id is not None:
+        model.config.pad_token_id = tokenizer.pad_token_id
+    if getattr(model.config, "eos_token_id", None) is None and tokenizer.eos_token_id is not None:
+        model.config.eos_token_id = tokenizer.eos_token_id
 
     return model, tokenizer
 

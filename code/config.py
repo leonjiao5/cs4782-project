@@ -1,6 +1,7 @@
 import os
 
 MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
+TRUST_REMOTE_CODE = False
 LOAD_IN_4BIT = False
 RANK = 16
 ALPHA = 32

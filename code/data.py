@@ -48,7 +48,7 @@ def format_prompt(problem: str, tokenizer=None) -> str:
         return tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
-    # Llama-3.x fallback
+    # Fallback when tokenizer has no chat_template (Llama-3-style tags).
     return (
         "<|begin_of_text|>"
         "<|start_header_id|>system<|end_header_id|>\n\n"
@@ -70,7 +70,7 @@ def format_training_example(problem: str, solution: str, tokenizer=None) -> str:
         return tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=False
         )
-    # Llama-3.x fallback
+    # Fallback when tokenizer has no chat_template (Llama-3-style tags).
     return (
         "<|begin_of_text|>"
         "<|start_header_id|>system<|end_header_id|>\n\n"
