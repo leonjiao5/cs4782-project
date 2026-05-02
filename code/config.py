@@ -1,6 +1,6 @@
 import os
 
-MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
+MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
 LOAD_IN_4BIT = False
 RANK = 16
 ALPHA = 32

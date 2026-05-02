@@ -22,6 +22,9 @@ class DoRALinear(nn.Module):
             initial_weights = base.weight
             self.m = nn.Parameter(initial_weights.norm(p=2, dim=1))
 
+        for param in self.base.parameters():
+            param.requires_grad = False
+
         self.dropout = nn.Dropout(p=dropout)
         self.merged = False
         self._cached_base_weight = None

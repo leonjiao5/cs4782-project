@@ -1,4 +1,4 @@
-model_name: meta-llama/Llama-3.1-8B-Instruct
+model_name: Qwen/Qwen2.5-3B-Instruct
 load_in_4bit: false
 rank: 16
 alpha: 32
