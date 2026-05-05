@@ -22,7 +22,7 @@ class DoRALinear(nn.Module):
 
         with torch.no_grad():
             initial_weights = base.weight
-            self.m = nn.Parameter(initial_weights.norm(p=2, dim=1).clone())
+            self.m = nn.Parameter(initial_weights.norm(p=2, dim=0, keepdim=True).clone())
 
         for param in self.base.parameters():
             param.requires_grad = False
@@ -36,9 +36,8 @@ class DoRALinear(nn.Module):
         lora_update = (self.lora_B @ self.lora_A) * self.scaling
         weight_eff = base_weights + lora_update
 
-        # Eq. 11 detach trick: keep denominator constant for gradients.
-        row_norm = weight_eff.norm(p=2, dim=1).detach().clamp_min(1e-12)
-        return (self.m / row_norm).unsqueeze(1) * weight_eff
+        col_norm = weight_eff.norm(p=2, dim=0, keepdim=True).detach().clamp_min(1e-12)
+        return (self.m / col_norm) * weight_eff
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.merged:
