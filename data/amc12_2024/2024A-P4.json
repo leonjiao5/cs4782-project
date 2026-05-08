@@ -1,0 +1,5 @@
+{
+  "problem": "What is the least value of $n$ such that $n!$ is a multiple of $2024$?\n\n$\\textbf{(A) }11 \\qquad\n\\textbf{(B) }21 \\qquad\n\\textbf{(C) }22 \\qquad\n\\textbf{(D) }23 \\qquad\n\\textbf{(E) }253 \\qquad$",
+  "answer": "D",
+  "difficulty": 2
+}

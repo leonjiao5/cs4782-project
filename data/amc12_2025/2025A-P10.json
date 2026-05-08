@@ -1,0 +1,5 @@
+{
+  "problem": "In the figure shown below, major arc $\\widehat{AD}$ and minor arc $\\widehat{BC}$ have the same center, $O$. Also, $A$ lies between $O$ and $B$, and $D$ lies between $O$ and $C$. Major arc $\\widehat{AD}$, minor arc $\\widehat{BC}$, and each of the two segments $\\overline{AB}$ and $\\overline{CD}$ have length $2\\pi$. What is the distance from $O$ to $A$?\n\n```asy\nusepackage(\"mathptmx\"); size(6cm); defaultpen(linewidth(0.7)); real r = 1 - pi + sqrt(pi^2 + 1);\npair O = (0, 0), A = r * dir(-30), B = (r + 2pi) * dir(-30), C = (r + 2pi) * dir(30), D = r * dir(30);\ndraw(arc(O, r, 30, 330)); draw(arc(O, r + 2pi, -30, 30)); draw(O--A, dashed); draw(O--D, dashed); draw(A--B); draw(C--D); dot(\"$O$\", O, dir(135)); dot(\"$A$\", A, dir(270)); dot(\"$B$\", B, dir(0)); dot(\"$C$\", C, dir(0)); dot(\"$D$\", D, 1.5 * dir(70));\n```\n\n\\textbf{(A)}~1 \\qquad \\textbf{(B)}~1 - \\pi + \\sqrt{\\pi^{2} + 1} \\qquad \\textbf{(C)}~\\frac{\\pi}{2} \\qquad \\textbf{(D)}~\\frac{\\sqrt{\\pi^{2} + 1}}{2} \\qquad \\textbf{(E)}~2",
+  "answer": "B",
+  "difficulty": 2
+}

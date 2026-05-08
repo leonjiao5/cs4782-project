@@ -1,0 +1,962 @@
+{
+  "checkpoint": "Qwen/Qwen2.5-3B",
+  "benchmark": "amc122024",
+  "scoring": "logit",
+  "n_samples": 1,
+  "temperature": 0.0,
+  "n_correct": 16,
+  "n_total": 50,
+  "accuracy": 0.32,
+  "problems": [
+    {
+      "problem_id": "2024A-P1",
+      "answer": "A",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 12.6875,
+        "B": 13.6875,
+        "C": 15.625,
+        "D": 15.25,
+        "E": 14.0625
+      }
+    },
+    {
+      "problem_id": "2024A-P10",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 15.625,
+        "B": 15.875,
+        "C": 16.375,
+        "D": 16.125,
+        "E": 15.375
+      }
+    },
+    {
+      "problem_id": "2024A-P11",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.9375,
+        "B": 14.5,
+        "C": 14.875,
+        "D": 15.125,
+        "E": 14.375
+      }
+    },
+    {
+      "problem_id": "2024A-P12",
+      "answer": "E",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.5,
+        "B": 15.0625,
+        "C": 15.25,
+        "D": 15.5,
+        "E": 14.875
+      }
+    },
+    {
+      "problem_id": "2024A-P13",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 14.75,
+        "B": 15.0625,
+        "C": 15.875,
+        "D": 16.125,
+        "E": 15.1875
+      }
+    },
+    {
+      "problem_id": "2024A-P14",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.3125,
+        "B": 14.5,
+        "C": 15.375,
+        "D": 14.9375,
+        "E": 14.1875
+      }
+    },
+    {
+      "problem_id": "2024A-P15",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.5625,
+        "B": 14.875,
+        "C": 15.375,
+        "D": 16.0,
+        "E": 14.5
+      }
+    },
+    {
+      "problem_id": "2024A-P16",
+      "answer": "C",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.375,
+        "B": 14.75,
+        "C": 15.125,
+        "D": 15.25,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024A-P17",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.5,
+        "B": 14.6875,
+        "C": 14.8125,
+        "D": 15.25,
+        "E": 14.3125
+      }
+    },
+    {
+      "problem_id": "2024A-P18",
+      "answer": "A",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.0,
+        "B": 14.875,
+        "C": 14.875,
+        "D": 15.125,
+        "E": 14.4375
+      }
+    },
+    {
+      "problem_id": "2024A-P19",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.5625,
+        "B": 14.375,
+        "C": 14.1875,
+        "D": 15.75,
+        "E": 14.125
+      }
+    },
+    {
+      "problem_id": "2024A-P2",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.8125,
+        "B": 14.875,
+        "C": 14.9375,
+        "D": 15.4375,
+        "E": 14.25
+      }
+    },
+    {
+      "problem_id": "2024A-P20",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 15.0,
+        "B": 14.875,
+        "C": 15.375,
+        "D": 16.125,
+        "E": 15.125
+      }
+    },
+    {
+      "problem_id": "2024A-P21",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.0625,
+        "B": 14.5,
+        "C": 15.0,
+        "D": 15.25,
+        "E": 14.1875
+      }
+    },
+    {
+      "problem_id": "2024A-P22",
+      "answer": "C",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.3125,
+        "B": 14.5625,
+        "C": 15.0625,
+        "D": 15.1875,
+        "E": 13.875
+      }
+    },
+    {
+      "problem_id": "2024A-P23",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.5625,
+        "B": 14.875,
+        "C": 15.8125,
+        "D": 14.8125,
+        "E": 14.375
+      }
+    },
+    {
+      "problem_id": "2024A-P24",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.5,
+        "B": 14.5,
+        "C": 15.3125,
+        "D": 15.875,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024A-P25",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.75,
+        "B": 15.625,
+        "C": 15.25,
+        "D": 16.0,
+        "E": 14.6875
+      }
+    },
+    {
+      "problem_id": "2024A-P3",
+      "answer": "B",
+      "predicted": [
+        "B"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.5625,
+        "B": 15.375,
+        "C": 15.25,
+        "D": 15.3125,
+        "E": 13.875
+      }
+    },
+    {
+      "problem_id": "2024A-P4",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 12.375,
+        "B": 14.25,
+        "C": 15.0625,
+        "D": 15.4375,
+        "E": 13.875
+      }
+    },
+    {
+      "problem_id": "2024A-P5",
+      "answer": "D",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.625,
+        "B": 15.5,
+        "C": 15.5625,
+        "D": 15.5,
+        "E": 14.8125
+      }
+    },
+    {
+      "problem_id": "2024A-P6",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.8125,
+        "B": 14.125,
+        "C": 15.3125,
+        "D": 15.75,
+        "E": 15.625
+      }
+    },
+    {
+      "problem_id": "2024A-P7",
+      "answer": "D",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.9375,
+        "B": 14.6875,
+        "C": 15.1875,
+        "D": 15.1875,
+        "E": 14.1875
+      }
+    },
+    {
+      "problem_id": "2024A-P8",
+      "answer": "A",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 12.875,
+        "B": 14.125,
+        "C": 15.4375,
+        "D": 15.8125,
+        "E": 14.25
+      }
+    },
+    {
+      "problem_id": "2024A-P9",
+      "answer": "E",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.25,
+        "B": 14.625,
+        "C": 15.375,
+        "D": 15.4375,
+        "E": 14.8125
+      }
+    },
+    {
+      "problem_id": "2024B-P1",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.875,
+        "B": 15.25,
+        "C": 15.625,
+        "D": 15.75,
+        "E": 14.25
+      }
+    },
+    {
+      "problem_id": "2024B-P10",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 14.0625,
+        "B": 15.0,
+        "C": 15.8125,
+        "D": 15.8125,
+        "E": 14.0625
+      }
+    },
+    {
+      "problem_id": "2024B-P11",
+      "answer": "E",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.375,
+        "B": 14.1875,
+        "C": 15.5,
+        "D": 15.3125,
+        "E": 15.125
+      }
+    },
+    {
+      "problem_id": "2024B-P12",
+      "answer": "D",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.4375,
+        "B": 14.375,
+        "C": 15.3125,
+        "D": 15.5,
+        "E": 13.875
+      }
+    },
+    {
+      "problem_id": "2024B-P13",
+      "answer": "C",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.6875,
+        "B": 14.25,
+        "C": 14.8125,
+        "D": 15.25,
+        "E": 14.375
+      }
+    },
+    {
+      "problem_id": "2024B-P14",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.0,
+        "B": 13.9375,
+        "C": 15.5,
+        "D": 14.3125,
+        "E": 13.9375
+      }
+    },
+    {
+      "problem_id": "2024B-P15",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.25,
+        "B": 13.6875,
+        "C": 14.4375,
+        "D": 15.4375,
+        "E": 14.875
+      }
+    },
+    {
+      "problem_id": "2024B-P16",
+      "answer": "A",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.0,
+        "B": 14.75,
+        "C": 14.9375,
+        "D": 15.3125,
+        "E": 14.4375
+      }
+    },
+    {
+      "problem_id": "2024B-P17",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 14.125,
+        "B": 14.5,
+        "C": 15.5,
+        "D": 15.25,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024B-P18",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.25,
+        "B": 14.5625,
+        "C": 15.125,
+        "D": 15.125,
+        "E": 13.8125
+      }
+    },
+    {
+      "problem_id": "2024B-P19",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.625,
+        "B": 14.25,
+        "C": 14.9375,
+        "D": 15.3125,
+        "E": 14.875
+      }
+    },
+    {
+      "problem_id": "2024B-P2",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.4375,
+        "B": 14.9375,
+        "C": 15.5625,
+        "D": 14.25,
+        "E": 13.8125
+      }
+    },
+    {
+      "problem_id": "2024B-P20",
+      "answer": "C",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.3125,
+        "B": 15.125,
+        "C": 15.25,
+        "D": 15.5625,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024B-P21",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 13.625,
+        "B": 14.6875,
+        "C": 15.25,
+        "D": 14.9375,
+        "E": 14.375
+      }
+    },
+    {
+      "problem_id": "2024B-P22",
+      "answer": "C",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        true
+      ],
+      "majority_correct": true,
+      "logit_scores": {
+        "A": 15.125,
+        "B": 15.625,
+        "C": 15.75,
+        "D": 15.5625,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024B-P23",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.125,
+        "B": 14.4375,
+        "C": 15.25,
+        "D": 15.4375,
+        "E": 14.8125
+      }
+    },
+    {
+      "problem_id": "2024B-P24",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.625,
+        "B": 15.375,
+        "C": 16.0,
+        "D": 15.9375,
+        "E": 15.125
+      }
+    },
+    {
+      "problem_id": "2024B-P25",
+      "answer": "A",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.25,
+        "B": 14.6875,
+        "C": 14.625,
+        "D": 15.125,
+        "E": 14.25
+      }
+    },
+    {
+      "problem_id": "2024B-P3",
+      "answer": "E",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.625,
+        "B": 15.5625,
+        "C": 15.6875,
+        "D": 16.25,
+        "E": 15.1875
+      }
+    },
+    {
+      "problem_id": "2024B-P4",
+      "answer": "D",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 14.25,
+        "B": 15.0,
+        "C": 15.625,
+        "D": 15.5625,
+        "E": 14.5
+      }
+    },
+    {
+      "problem_id": "2024B-P5",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.8125,
+        "B": 15.0625,
+        "C": 15.0625,
+        "D": 15.1875,
+        "E": 13.875
+      }
+    },
+    {
+      "problem_id": "2024B-P6",
+      "answer": "B",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.8125,
+        "B": 15.3125,
+        "C": 15.4375,
+        "D": 15.6875,
+        "E": 14.875
+      }
+    },
+    {
+      "problem_id": "2024B-P7",
+      "answer": "C",
+      "predicted": [
+        "D"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.5625,
+        "B": 14.875,
+        "C": 15.3125,
+        "D": 15.5625,
+        "E": 14.5625
+      }
+    },
+    {
+      "problem_id": "2024B-P8",
+      "answer": "C",
+      "predicted": [
+        "B"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.1875,
+        "B": 15.125,
+        "C": 14.5,
+        "D": 14.8125,
+        "E": 14.0625
+      }
+    },
+    {
+      "problem_id": "2024B-P9",
+      "answer": "B",
+      "predicted": [
+        "C"
+      ],
+      "responses": [],
+      "correct": [
+        false
+      ],
+      "majority_correct": false,
+      "logit_scores": {
+        "A": 13.9375,
+        "B": 14.875,
+        "C": 15.5,
+        "D": 15.3125,
+        "E": 14.5
+      }
+    }
+  ]
+}

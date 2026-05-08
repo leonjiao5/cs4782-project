@@ -1,0 +1,5 @@
+{
+  "problem": "Awnik repeatedly plays a game that has a probability of winning of $\\frac{1}{3}$. The outcomes of the games are independent. What is the expected value of the number of games he will play until he has both won and lost at least once?\n\n$\\textbf{(A) } \\frac{5}{2} \\qquad \\textbf{(B) } 3 \\qquad \\textbf{(C) } \\frac{16}{5} \\qquad \\textbf{(D) } \\frac{7}{2} \\qquad \\textbf{(E) } \\frac{15}{4}$",
+  "answer": "D",
+  "difficulty": 3
+}

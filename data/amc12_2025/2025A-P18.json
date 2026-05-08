@@ -1,0 +1,5 @@
+{
+  "problem": "How many ordered triples $(x, y, z)$ of different positive integers less than or equal to $8$ satisfy $xy > z$, $xz > y$, and $yz > x$?\n\n\\textbf{(A)}~36 \\qquad \\textbf{(B)}~84 \\qquad \\textbf{(C)}~186 \\qquad \\textbf{(D)}~336 \\qquad \\textbf{(E)}~486",
+  "answer": "C",
+  "difficulty": 3
+}

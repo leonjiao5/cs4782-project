@@ -1,0 +1,5 @@
+{
+  "problem": "The polynomial $(z + i)(z + 2i)(z + 3i) + 10$ has three roots in the complex plane, where $i = \\sqrt{-1}$. What is the area of the triangle formed by these three roots?\n\n\\textbf{(A)}~6 \\qquad \\textbf{(B)}~8 \\qquad \\textbf{(C)}~10 \\qquad \\textbf{(D)}~12 \\qquad \\textbf{(E)}~14",
+  "answer": "A",
+  "difficulty": 3
+}

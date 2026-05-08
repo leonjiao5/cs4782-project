@@ -1,0 +1,5 @@
+{
+  "problem": "A triangle in the coordinate plane has vertices $A(\\log_21,\\log_22)$, $B(\\log_23,\\log_24)$, and $C(\\log_27,\\log_28)$. What is the area of $\\triangle ABC$?\n\n$\\textbf{(A) }\\log_2\\frac{\\sqrt3}7\\qquad\n\\textbf{(B) }\\log_2\\frac3{\\sqrt7}\\qquad\n\\textbf{(C) }\\log_2\\frac7{\\sqrt3}\\qquad\n\\textbf{(D) }\\log_2\\frac{11}{\\sqrt7}\\qquad\n\\textbf{(E) }\\log_2\\frac{11}{\\sqrt3}\\qquad$",
+  "answer": "B",
+  "difficulty": 3
+}

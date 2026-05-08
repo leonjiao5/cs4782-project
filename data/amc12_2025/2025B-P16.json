@@ -1,0 +1,5 @@
+{
+  "problem": "An analog clock starts at midnight and runs for $2025$ minutes before stopping. What is the tangent of the acute angle between the hour hand and the minute hand when the clock stops?\n\n$\\textbf{(A) } 0 \\qquad \\textbf{(B) } \\sqrt{2}-1 \\qquad \\textbf{(C) } 2-\\sqrt{2} \\qquad \\textbf{(D) } \\frac{\\sqrt{2}}{2} \\qquad \\textbf{(E) } 3-\\sqrt{2}$",
+  "answer": "B",
+  "difficulty": 3
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "Six chairs are arranged around a round table. Two students and two teachers randomly select four of the chairs to sit in. What is the probability that the two students will sit in two adjacent chairs and the two teachers will also sit in two adjacent chairs?\n\n$\\textbf{(A) } \\frac 16 \\qquad \\textbf{(B) } \\frac 15 \\qquad \\textbf{(C) } \\frac 29 \\qquad \\textbf{(D) } \\frac 3{13} \\qquad \\textbf{(E) } \\frac 14$",
+  "answer": "B",
+  "difficulty": 2
+}

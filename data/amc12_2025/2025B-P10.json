@@ -1,0 +1,5 @@
+{
+  "problem": "The altitude to the hypotenuse of a $30{-}60{-}90^\\circ$ is divided into two segments of lengths $x<y$ by the median to the shortest side of the triangle. What is the ratio $\\tfrac{x}{x+y}$?\n\n$\\textbf{(A) } \\dfrac{3}{7} \\qquad \\textbf{(B) } \\dfrac{\\sqrt3}{4} \\qquad \\textbf{(C) } \\dfrac{4}{9} \\qquad \\textbf{(D) } \\dfrac{5}{11} \\qquad \\textbf{(E) } \\dfrac{4\\sqrt3}{15}$",
+  "answer": "A",
+  "difficulty": 2
+}

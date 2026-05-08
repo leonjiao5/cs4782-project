@@ -1,0 +1,5 @@
+{
+  "problem": "The national debt of the United States is on track to reach $5 \\cdot 10^{13}$ dollars by $2033$. How many digits does this number of dollars have when written as a numeral in base $5$? (The approximation of $\\log_{10} 5$ as $0.7$ is sufficient for this problem.)\n\n$\\textbf{(A) }18 \\qquad\n\\textbf{(B) }20 \\qquad\n\\textbf{(C) }22 \\qquad\n\\textbf{(D) }24 \\qquad\n\\textbf{(E) }26 \\qquad$",
+  "answer": "B",
+  "difficulty": 2
+}

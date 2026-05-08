@@ -1,0 +1,5 @@
+{
+  "problem": "In $\\Delta ABC$, $\\angle ABC = 90^\\circ$ and $BA = BC = \\sqrt{2}$. Points $P_1, P_2, \\dots, P_{2024}$ lie on hypotenuse $\\overline{AC}$ so that $AP_1= P_1P_2 = P_2P_3 = \\dots = P_{2023}P_{2024} = P_{2024}C$. What is the length of the vector sum\n$$\n\\overrightarrow{BP_1} + \\overrightarrow{BP_2} + \\overrightarrow{BP_3} + \\dots + \\overrightarrow{BP_{2024}}?\n$$\n$\\textbf{(A) }1011 \\qquad\n\\textbf{(B) }1012 \\qquad\n\\textbf{(C) }2023 \\qquad\n\\textbf{(D) }2024 \\qquad\n\\textbf{(E) }2025 \\qquad$",
+  "answer": "D",
+  "difficulty": 2
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "A circle of radius $r$ is surrounded by $12$ circles of radius $1,$ externally tangent to the central circle and sequentially tangent to each other, as shown. Then $r$ can be written as $\\sqrt a + \\sqrt b + c,$ where $a, b, c$ are integers. What is $a+b+c?$\n\n```asy\ndefaultpen(fontsize(12)+linewidth(1)); size(200);\nreal r=2.925, x=360/12;\npair O=origin;\ndraw(CR(O,r),black+1.5);\nfor (int i = 0; i<12; ++i) {\n draw(CR((r+1)*dir(i*x),1));\n}\ndot(O); dot((r+1)*right);\ndraw(O--(r,0)^^(r+1,0)--(r+2,0), linewidth(0.5));\nlabel(\"$r$\",(r/2,0),up);\nlabel(\"$1$\",(r+3/2,0),up);\n```\n\n$\\textbf{(A) } 3 \\qquad \\textbf{(B) } 5 \\qquad \\textbf{(C) } 7 \\qquad \\textbf{(D) } 9 \\qquad \\textbf{(E) } 11$",
+  "answer": "C",
+  "difficulty": 4
+}

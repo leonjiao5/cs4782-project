@@ -1,0 +1,5 @@
+{
+  "problem": "A data set containing $20$ numbers, some of which are $6$, has mean $45$. When all the 6s are removed, the data set has mean $66$. How many 6s were in the original data set?\n\n$\\textbf{(A) }4\\qquad\\textbf{(B) }5\\qquad\\textbf{(C) }6\\qquad\\textbf{(D) }7\\qquad\\textbf{(E) }8$",
+  "answer": "D",
+  "difficulty": 2
+}

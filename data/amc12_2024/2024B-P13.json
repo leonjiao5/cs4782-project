@@ -1,0 +1,5 @@
+{
+  "problem": "There are real numbers $x,y,h$ and $k$ that satisfy the system of equations$$\nx^2 + y^2 - 6x - 8y = h\n$$$$\nx^2 + y^2 - 10x + 4y = k\n$$What is the minimum possible value of $h+k$?\n\n$\\textbf{(A) }-54 \\qquad\n\\textbf{(B) }-46 \\qquad\n\\textbf{(C) }-34 \\qquad\n\\textbf{(D) }-16 \\qquad\n\\textbf{(E) }16 \\qquad$",
+  "answer": "C",
+  "difficulty": 3
+}

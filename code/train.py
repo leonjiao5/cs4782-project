@@ -70,7 +70,7 @@ def main(args):
     train_dataset = build_dataset(corpus, tokenizer)
     print(f"Training on {len(train_dataset)} examples (tier={args.tier})")
 
-    run_id = f"{args.method}_{args.tier}_{datetime.now().strftime('%m%d_%H%M')}"
+    run_id = args.run_id or f"{args.method}_{args.tier}_{datetime.now().strftime('%m%d_%H%M')}"
     output_dir = os.path.join(args.output_dir, run_id)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -89,6 +89,7 @@ def main(args):
         learning_rate=cfg.get("lr", 2e-4),
         lr_scheduler_type="cosine",
         warmup_ratio=cfg.get("warmup_ratio", 0.03),
+        weight_decay=cfg.get("weight_decay", 0.0),
         bf16=(
             not load_in_4bit
             and (torch.cuda.is_available() or getattr(torch.backends, "mps", None) and torch.backends.mps.is_available())
@@ -154,10 +155,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--tier",
-        choices=["train_light", "train", "train_scale"],
         default="train",
+        help="Training data tier; any name matching data/{tier}/{tier}.jsonl",
     )
-    parser.add_argument("--output_dir", default="results/checkpoints")
+    parser.add_argument("--output_dir", default=os.path.join(RESULTS_DIR, "checkpoints"))
+    parser.add_argument("--run_id", default=None,
+                        help="Override auto-generated run ID (method_tier_timestamp)")
     parser.add_argument("--resume", default=None,
                         help="Path to a Trainer checkpoint dir to resume from")
     main(parser.parse_args())

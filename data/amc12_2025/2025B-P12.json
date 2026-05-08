@@ -1,0 +1,5 @@
+{
+  "problem": "The windshield wiper on the driver's side of a large bus is depicted below.\n\n```asy\n/* Made by MRENTHUSIASM */\nsize(200);\npair A, B, C, D;\nA = origin;\nB = (3/2,3*sqrt(3)/2);\nC = B+(0,1.75);\nD = B-(0,1.75);\ndraw(A--B,linewidth(1.1));\ndraw(C--D,red+linewidth(2.1));\ndot(A^^B,linewidth(5));\nlabel(\"$A$\",A,1.5*W);\nlabel(\"$B$\",B,1.5*E);\nlabel(\"$C$\",C,1.5*E);\nlabel(\"$D$\",D,1.5*E);\n```\n\nArm $\\overline{AB}$ pivots back and forth around point $A$, sweeping out an arc of $60^{\\circ}$, symmetric about the vertical line through $A$. The wiper blade $\\overline{CD}$ is attached to $B$ at its midpoint and stays vertical as the arm moves. The arm is $3$ feet long, and the wiper blade is $3.5$ feet tall. What is the area of the windshield cleaned by the wiper, in square feet, to the nearest hundredth? (Assume that the windshield is a flat vertical surface.)\n\n$\\textbf{(A) } 9.68 \\qquad \\textbf{(B) } 10.14 \\qquad \\textbf{(C) } 10.50 \\qquad \\textbf{(D) } 11.32 \\qquad \\textbf{(E) } 12.00$",
+  "answer": "C",
+  "difficulty": 3
+}

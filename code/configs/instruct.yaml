@@ -1,0 +1,25 @@
+model_name: Qwen/Qwen2.5-3B-Instruct
+# Qwen2.5 on the Hub uses standard AutoModel; set true only for custom checkpoints that need it.
+trust_remote_code: false
+# Optional: sdpa | flash_attention_2 | eager (omit for HF default)
+attn_implementation: sdpa
+load_in_4bit: false
+rank: 8
+alpha: 32
+dropout: 0.05
+target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - up_proj
+  - down_proj
+lr: 1.0e-4
+max_seq_len: 4096
+seed: 42
+epochs: 1
+batch_size: 16
+per_device_batch_size: 1
+warmup_ratio: 0.03
+save_strategy: steps
+save_steps: 100
+save_total_limit: null  # keep all checkpoints

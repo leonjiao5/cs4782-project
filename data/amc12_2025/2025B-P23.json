@@ -1,0 +1,5 @@
+{
+  "problem": "Let $S$ be the set of all integers $z > 1$ such that for all pairs of nonnegative integers $(x, y)$ with $x < y < z$, the remainder when $2025x$ is divided by $z$ is less than the remainder when $2025y$ is divided by $z$. What is the sum of the elements of $S$?\n\n\\textbf{(A)}~3041 \\qquad \\textbf{(B)}~3542 \\qquad \\textbf{(C)}~3750 \\qquad \\textbf{(D)}~4044 \\qquad \\textbf{(E)}~4319",
+  "answer": "E",
+  "difficulty": 4
+}

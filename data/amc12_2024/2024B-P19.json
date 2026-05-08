@@ -1,0 +1,5 @@
+{
+  "problem": "Equilateral $\\triangle ABC$ with side length $14$ is rotated about its center by angle $\\theta$, where $0 < \\theta < 60^{\\circ}$, to form $\\triangle DEF$. See the figure. The area of hexagon $ADBECF$ is $91\\sqrt{3}$. What is $\\tan\\theta$?\n\n```asy\n// Credit to shihan for this diagram.\n\ndefaultpen(fontsize(13)); size(200);\npair O=(0,0),A=dir(225),B=dir(-15),C=dir(105),D=rotate(38.21,O)*A,E=rotate(38.21,O)*B,F=rotate(38.21,O)*C;\ndraw(A--B--C--A,gray+0.4);draw(D--E--F--D,gray+0.4); draw(A--D--B--E--C--F--A,black+0.9); dot(O); dot(\"$A$\",A,dir(A)); dot(\"$B$\",B,dir(B)); dot(\"$C$\",C,dir(C)); dot(\"$D$\",D,dir(D)); dot(\"$E$\",E,dir(E)); dot(\"$F$\",F,dir(F));\n```\n\n\\textbf{(A)}~\\frac{3}{4}\\qquad\\textbf{(B)}~\\frac{5\\sqrt{3}}{11}\\qquad\\textbf{(C)}~\\frac{4}{5}\\qquad\\textbf{(D)}~\\frac{11}{13}\\qquad\\textbf{(E)}~\\frac{7\\sqrt{3}}{13}",
+  "answer": "B",
+  "difficulty": 3
+}

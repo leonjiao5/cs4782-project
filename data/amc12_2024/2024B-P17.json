@@ -1,0 +1,5 @@
+{
+  "problem": "Integers $a$ and $b$ are randomly chosen without replacement from the set of integers with absolute value not exceeding $10$. What is the probability that the polynomial $x^3 + ax^2 + bx + 6$ has $3$ distinct integer roots?\n\n$\\textbf{(A) }\\frac{1}{240} \\qquad \\textbf{(B) }\\frac{1}{221} \\qquad \\textbf{(C) }\\frac{1}{105} \\qquad \\textbf{(D) }\\frac{1}{84} \\qquad \\textbf{(E) }\\frac{1}{63}$",
+  "answer": "C",
+  "difficulty": 3
+}

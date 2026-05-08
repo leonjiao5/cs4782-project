@@ -1,0 +1,5 @@
+{
+  "problem": "There are integers $a$ and $b$ such that the polynomial $x^3 - 5x^2 + ax + b$ has $4+\\sqrt{5}$ as a root. What is $a+b$?\n\n$\\textbf{(A) } 13 \\qquad \\textbf{(B) } 17 \\qquad \\textbf{(C) } 20 \\qquad \\textbf{(D) } 30 \\qquad \\textbf{(E) } 68$",
+  "answer": "C",
+  "difficulty": 2
+}

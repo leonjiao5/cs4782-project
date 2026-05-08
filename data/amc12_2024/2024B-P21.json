@@ -1,0 +1,5 @@
+{
+  "problem": "The measures of the smallest angles of three different right triangles sum to $90^\\circ$. All three triangles have side lengths that are primitive Pythagorean triples. Two of them are $3-4-5$ and $5-12-13$. What is the perimeter of the third triangle?\n\n$\\textbf{(A) }40 \\qquad\n\\textbf{(B) }126 \\qquad\n\\textbf{(C) }154 \\qquad\n\\textbf{(D) }176 \\qquad\n\\textbf{(E) }208 \\qquad$",
+  "answer": "C",
+  "difficulty": 4
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "Let $\\alpha$ be the radian measure of the smallest angle in a $3{-}4{-}5$ right triangle. Let $\\beta$ be the radian measure of the smallest angle in a $7{-}24{-}25$ right triangle. In terms of $\\alpha$, what is $\\beta$?\n\n$\\textbf{(A) }\\frac{\\alpha}{3}\\qquad\n\\textbf{(B) }\\alpha - \\frac{\\pi}{8}\\qquad\n\\textbf{(C) }\\frac{\\pi}{2} - 2\\alpha \\qquad\n\\textbf{(D) }\\frac{\\alpha}{2}\\qquad\n\\textbf{(E) }\\pi - 4\\alpha\\qquad$",
+  "answer": "C",
+  "difficulty": 2
+}

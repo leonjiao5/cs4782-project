@@ -1,0 +1,5 @@
+{
+  "problem": "A list of 9 real numbers consists of $1$, $2.2$, $3.2$, $5.2$, $6.2$, and $7$, as well as $x, y,z$ with $x\\leq y\\leq z$. The range of the list is $7$, and the mean and median are both positive integers. How many ordered triples $(x,y,z)$ are possible?\n\n$\\textbf{(A) }1 \\qquad\\textbf{(B) }2 \\qquad\\textbf{(C) }3 \\qquad\\textbf{(D) }4 \\qquad\\textbf{(E) }\\text{infinitely many}\\qquad$",
+  "answer": "C",
+  "difficulty": 2
+}

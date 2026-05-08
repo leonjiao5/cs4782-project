@@ -1,0 +1,5 @@
+{
+  "problem": "A team of students is going to compete against a team of teachers in a trivia contest. The total number of students and teachers is $15$. Ash, a cousin of one of the students, wants to join the contest. If Ash plays with the students, the average age on that team will increase from $12$ to $14$. If Ash plays with the teachers, the average age on that team will decrease from $55$ to $52$. How old is Ash?\n\n\\textbf{(A)}~28\\qquad\\textbf{(B)}~29\\qquad\\textbf{(C)}~30\\qquad\\textbf{(D)}~32\\qquad\\textbf{(E)}~33",
+  "answer": "A",
+  "difficulty": 2
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "Positive integers $x$ and $y$ satisfy the equation $57x+22y = 400$. What is the least possible value of $x+y$?\n\n$\\textbf{(A) } 10 \\qquad\\textbf{(B) } 11 \\qquad\\textbf{(C) } 13 \\qquad\\textbf{(D) } 14 \\qquad\\textbf{(E) } 15$",
+  "answer": "E",
+  "difficulty": 2
+}

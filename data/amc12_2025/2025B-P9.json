@@ -1,0 +1,5 @@
+{
+  "problem": "What is the tens digit of $6^{6^6}$?\n\n\\textbf{(A)}~1 \\qquad \\textbf{(B)}~3 \\qquad \\textbf{(C)}~5 \\qquad \\textbf{(D)}~7 \\qquad \\textbf{(E)}~9",
+  "answer": "C",
+  "difficulty": 2
+}

@@ -22,6 +22,7 @@ class DoRALinear(nn.Module):
 
         with torch.no_grad():
             initial_weights = base.weight
+            # Column-wise norm (dim=0): one magnitude per input feature, shape (1, in_features)
             self.m = nn.Parameter(initial_weights.norm(p=2, dim=0, keepdim=True).clone())
 
         for param in self.base.parameters():
@@ -36,6 +37,8 @@ class DoRALinear(nn.Module):
         lora_update = (self.lora_B @ self.lora_A) * self.scaling
         weight_eff = base_weights + lora_update
 
+        # Eq. 11: column-wise norm (dim=0), one per input feature, shape (1, in_features)
+        # Detach denominator so only m and lora params receive gradients through it.
         col_norm = weight_eff.norm(p=2, dim=0, keepdim=True).detach().clamp_min(1e-12)
         return (self.m / col_norm) * weight_eff
 

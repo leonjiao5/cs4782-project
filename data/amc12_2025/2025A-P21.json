@@ -1,0 +1,5 @@
+{
+  "problem": "There is a unique ordered triple $(a,k,m)$ of nonnegative integers such that $$\n\\frac{4^a + 4^{a+k}+4^{a+2k}+\\cdots + 4^{a+mk}}{2^a + 2^{a+k} + 2^{a+2k}+ \\cdots + 2^{a+mk}} = 964.\n$$ What is $a+k+m$?\n\n$\\textbf{(A) } 8 \\qquad \\textbf{(B) } 9 \\qquad \\textbf{(C)} 10 \\qquad \\textbf{(D) } 11 \\qquad \\textbf{(E) } 12$",
+  "answer": "A",
+  "difficulty": 4
+}

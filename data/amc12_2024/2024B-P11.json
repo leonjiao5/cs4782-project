@@ -1,0 +1,5 @@
+{
+  "problem": "Let $x_{n} = \\sin^2(n^\\circ)$. What is the mean of $x_{1}, x_{2}, x_{3}, \\cdots, x_{90}$?\n\n$\\textbf{(A) }\\frac{11}{45} \\qquad\n\\textbf{(B) }\\frac{22}{45} \\qquad\n\\textbf{(C) }\\frac{89}{180} \\qquad\n\\textbf{(D) }\\frac{1}{2} \\qquad\n\\textbf{(E) }\\frac{91}{180} \\qquad$",
+  "answer": "E",
+  "difficulty": 3
+}

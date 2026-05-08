@@ -1,0 +1,5 @@
+{
+  "problem": "Let $\\triangle ABC$ be a triangle with integer side lengths and the property that $\\angle{B} = 2\\angle{A}$. What is the least possible perimeter of such a triangle?\n\n$\\textbf{(A) }13 \\qquad\n\\textbf{(B) }14 \\qquad\n\\textbf{(C) }15 \\qquad\n\\textbf{(D) }16 \\qquad\n\\textbf{(E) }17 \\qquad$",
+  "answer": "C",
+  "difficulty": 4
+}

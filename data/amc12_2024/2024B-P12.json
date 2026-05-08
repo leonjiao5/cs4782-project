@@ -1,0 +1,5 @@
+{
+  "problem": "Suppose $z$ is a complex number with positive imaginary part, with real part greater than $1$, and with $|z| = 2$. In the complex plane, the four points $0$, $z$, $z^{2}$, and $z^{3}$ are the vertices of a quadrilateral with area $15$. What is the imaginary part of $z$?\n\n\\textbf{(A)}~\\frac{3}{4}\\qquad\\textbf{(B)}~1\\qquad\\textbf{(C)}~\\frac{4}{3}\\qquad\\textbf{(D)}~\\frac{3}{2}\\qquad\\textbf{(E)}~\\frac{5}{3}",
+  "answer": "D",
+  "difficulty": 3
+}

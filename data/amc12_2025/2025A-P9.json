@@ -1,0 +1,5 @@
+{
+  "problem": "Let $w$ be the complex number $2+i$, where $i=\\sqrt{-1}$. What real number $r$ has the property that $r$, $w$, and $w^2$ are three collinear points in the complex plane?\n\n\\textbf{(A)}~\\frac34\\qquad\\textbf{(B)}~1\\qquad\\textbf{(C)}~\\frac75\\qquad\\textbf{(D)}~\\frac32\\qquad\\textbf{(E)}~\\frac53",
+  "answer": "E",
+  "difficulty": 2
+}

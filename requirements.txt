@@ -8,3 +8,5 @@ bitsandbytes
 numpy
 tqdm
 pyyaml
+pytest
+matplotlib

@@ -1,0 +1,5 @@
+{
+  "problem": "How many different remainders can result when the $100$th power of an integer is divided by $125$?\n\n$\\textbf{(A) }1 \\qquad\\textbf{(B) }2 \\qquad\\textbf{(C) }5 \\qquad\\textbf{(D) }25 \\qquad\\textbf{(E) }125 \\qquad$",
+  "answer": "B",
+  "difficulty": 3
+}

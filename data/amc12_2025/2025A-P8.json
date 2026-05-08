@@ -1,0 +1,5 @@
+{
+  "problem": "Pentagon $ABCDE$ is inscribed in a circle, and $\\angle BEC = \\angle CED = 30^\\circ$. Let line $AC$ and line $BD$ intersect at point $F$, and suppose that $AB = 9$ and $AD = 24$. What is $BF$?\n\n$\\textbf{(A) } \\frac{57}{11} \\qquad\\textbf{(B) } \\frac{59}{11} \\qquad\\textbf{(C) } \\frac{60}{11} \\qquad\\textbf{(D) } \\frac{61}{11} \\qquad\\textbf{(E) } \\frac{63}{11}$",
+  "answer": "E",
+  "difficulty": 2
+}

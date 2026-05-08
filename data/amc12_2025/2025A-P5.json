@@ -1,0 +1,5 @@
+{
+  "problem": "In the figure below, the outside square contains infinitely many squares, each of them with the same center and sides parallel to the outside square. The ratio of the side length of a square to the side length of the next inner square is $k$, where $0 < k < 1.$ The spaces between squares are alternately shaded as shown in the figure (which is not necessarily drawn to scale).\n\n```asy\nunitsize(1cm);\n\nint n = 25;\nreal s = 6;\nreal ratio = 0.767; //definitely not on purpose\nreal a = s;\n\nfor (int i = 0; i < n; ++i) {\n real b = a * ratio;\n\n // Draw current square\n draw(box((-a/2,-a/2),(a/2,a/2)));\n\n if (i % 2 == 1) {\n fill(box((-a/2,-a/2),(a/2,a/2)), gray(1));\n } else {\n fill(box((-a/2,-a/2),(a/2,a/2)), lightred);\n }\n\n a = b;\n}\n\ndraw(box((-a/2,-a/2),(a/2,a/2)));\n```\n\nThe area of the shaded portion of the figure is $64\\%$ of the area of the original square. What is $k$?\n\n$\\textbf{(A) } \\frac{3}{5} \\qquad\\textbf{(B) } \\frac{16}{25} \\qquad\\textbf{(C) } \\frac{2}{3} \\qquad\\textbf{(D) } \\frac{3}{4} \\qquad\\textbf{(E) } \\frac{4}{5}$",
+  "answer": "D",
+  "difficulty": 2
+}

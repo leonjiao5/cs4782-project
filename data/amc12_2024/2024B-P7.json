@@ -1,0 +1,5 @@
+{
+  "problem": "In the figure below $WXYZ$ is a rectangle with $WX=4$ and $WZ=8$. Point $M$ lies $\\overline{XY}$, point $A$ lies on $\\overline{YZ}$, and $\\angle WMA$ is a right angle. The areas of $\\triangle WXM$ and $\\triangle WAZ$ are equal. What is the area of $\\triangle WMA$?\n\n```asy\npair X = (0, 0);\npair W = (0, 4);\npair Y = (8, 0);\npair Z = (8, 4);\nlabel(\"$X$\", X, dir(180));\nlabel(\"$W$\", W, dir(180));\nlabel(\"$Y$\", Y, dir(0));\nlabel(\"$Z$\", Z, dir(0));\n\ndraw(W--X--Y--Z--cycle);\ndot(X);\ndot(Y);\ndot(W);\ndot(Z);\npair M = (2, 0);\npair A = (8, 3);\nlabel(\"$A$\", A, dir(0));\ndot(M);\ndot(A);\ndraw(W--M--A--cycle);\nmarkscalefactor = 0.05;\ndraw(rightanglemark(W, M, A));\nlabel(\"$M$\", M, dir(-90));\n```\n\n$\\textbf{(A) }13 \\qquad\n\\textbf{(B) }14 \\qquad\n\\textbf{(C) }15 \\qquad\n\\textbf{(D) }16 \\qquad\n\\textbf{(E) }17 \\qquad$",
+  "answer": "C",
+  "difficulty": 2
+}

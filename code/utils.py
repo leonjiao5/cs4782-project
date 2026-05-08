@@ -19,11 +19,52 @@ def load_config(path: str) -> dict:
 
 
 def is_correct(pred: str, gold: str) -> bool:
+    import re
     from code.data import extract_boxed_answer
-    answer = extract_boxed_answer(pred)
-    if answer is None:
-        return False
-    return answer.strip() == str(gold).strip()
+
+    try:
+        gold_int = int(str(gold).strip())
+    except ValueError:
+        # Non-integer gold: fall back to exact string match
+        extracted = extract_boxed_answer(pred)
+        return extracted is not None and extracted.strip() == str(gold).strip()
+
+    # (a) last \boxed{...} — try direct int parse
+    extracted = extract_boxed_answer(pred)
+    if extracted is not None:
+        try:
+            return int(extracted.strip()) == gold_int
+        except ValueError:
+            pass
+        # (b) coerce \boxed{anything} — grab last integer inside
+        nums = re.findall(r'-?\d+', extracted)
+        if nums:
+            try:
+                if int(nums[-1]) == gold_int:
+                    return True
+            except ValueError:
+                pass
+
+    # (c) natural-language answer patterns
+    for pat in [r'(?:answer|result)\s+is\s+(\d+)', r'=\s*(\d+)\s*[.$\n]', r'\\boxed\{(\d+)\}']:
+        matches = re.findall(pat, pred)
+        if matches:
+            try:
+                if int(matches[-1]) == gold_int:
+                    return True
+            except ValueError:
+                pass
+
+    # (d) last standalone integer 0-999 in the response
+    all_ints = re.findall(r'\b(\d{1,3})\b', pred)
+    if all_ints:
+        try:
+            if int(all_ints[-1]) == gold_int:
+                return True
+        except ValueError:
+            pass
+
+    return False
 
 
 def pass_at_k(n_correct: int, n_samples: int, k: int) -> float:

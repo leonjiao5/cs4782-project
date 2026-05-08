@@ -1,0 +1,5 @@
+{
+  "problem": "On top of a rectangular card with sides of length $1$ and $2+\\sqrt{3}$, an identical card is placed so that two of their diagonals line up, as shown ($\\overline{AC}$, in this case).\n\n```asy\ndefaultpen(fontsize(12)+0.85); size(150);\nreal h=2.25;\npair C=origin,B=(0,h),A=(1,h),D=(1,0),Dp=reflect(A,C)*D,Bp=reflect(A,C)*B;\npair L=extension(A,Dp,B,C),R=extension(Bp,C,A,D);\ndraw(L--B--A--Dp--C--Bp--A);\ndraw(C--D--R);\ndraw(L--C^^R--A,dashed+0.6);\ndraw(A--C,black+0.6);\ndot(\"$C$\",C,2*dir(C-R)); dot(\"$A$\",A,1.5*dir(A-L)); dot(\"$B$\",B,dir(B-R));\n```\n\nContinue the process, adding a third card to the second, and so on, lining up successive diagonals after rotating clockwise. In total, how many cards must be used until a vertex of a new card lands exactly on the vertex labeled $B$ in the figure?\n\n$\\textbf{(A) }6\\qquad\\textbf{(B) }8\\qquad\\textbf{(C) }10\\qquad\\textbf{(D) }12\\qquad\\textbf{(E) }\\text{No new vertex will land on }B.$",
+  "answer": "A",
+  "difficulty": 3
+}

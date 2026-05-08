@@ -1,0 +1,5 @@
+{
+  "problem": "Two non-congruent triangles have the same area. Each triangle has sides of length $8$ and $9$, and the third side of each triangle has integer length. What is the sum of the lengths of the third sides?\n\n$\\textbf{(A) } 20 \\qquad \\textbf{(B) } 22 \\qquad \\textbf{(C) } 24 \\qquad \\textbf{(D) } 26 \\qquad \\textbf{(E) } 28$",
+  "answer": "C",
+  "difficulty": 4
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "What is the greatest possible area of the triangle in the complex plane with vertices $2z$, $(1+i)z$, and $(1-i)z$, where $z$ is a complex number satisfying $|4z - 2| = 1$?\n\n\\textbf{(A)}~\\frac 14 \\qquad \\textbf{(B)}~\\frac 12 \\qquad \\textbf{(C)}~\\frac{9}{16} \\qquad \\textbf{(D)}~\\frac 34 \\qquad \\textbf{(E)}~1",
+  "answer": "C",
+  "difficulty": 4
+}

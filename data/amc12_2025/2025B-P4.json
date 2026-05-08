@@ -1,0 +1,5 @@
+{
+  "problem": "The value of the two-digit number $\\underline{a}\\;\\underline{b}$ in base seven equals the value of the two-digit number $\\underline{b}\\;\\underline{a}$ in base nine. What is $a+b$?\n\n$\\textbf{(A) } 7 \\qquad\\textbf{(B) } 9 \\qquad\\textbf{(C) } 10 \\qquad\\textbf{(D) } 11 \\qquad\\textbf{(E) } 14$",
+  "answer": "A",
+  "difficulty": 2
+}

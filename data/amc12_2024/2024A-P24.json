@@ -1,0 +1,5 @@
+{
+  "problem": "A $\\textit{disphenoid}$ is a tetrahedron whose triangular faces are congruent to one another. What is the least total surface area of a disphenoid whose faces are scalene triangles with integer side lengths?\n\n$\\textbf{(A) }\\sqrt{3}\\qquad\\textbf{(B) }3\\sqrt{15}\\qquad\\textbf{(C) }15\\qquad\\textbf{(D) }15\\sqrt{7}\\qquad\\textbf{(E) }24\\sqrt{6}$",
+  "answer": "D",
+  "difficulty": 4
+}

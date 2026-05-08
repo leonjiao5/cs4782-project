@@ -1,0 +1,5 @@
+{
+  "problem": "What is the number of ordered triples $(a,b,c)$ of positive integers, with $a\\le b\\le c\\le 9$, such that there exists a (non-degenerate) triangle $\\triangle ABC$ with an integer inradius for which $a$, $b$, and $c$ are the lengths of the altitudes from $A$ to $\\overline{BC}$, $B$ to $\\overline{AC}$, and $C$ to $\\overline{AB}$, respectively? (Recall that the inradius of a triangle is the radius of the largest possible circle that can be inscribed in the triangle.)\n\n$\\textbf{(A) }2\\qquad\n\\textbf{(B) }3\\qquad\n\\textbf{(C) }4\\qquad\n\\textbf{(D) }5\\qquad\n\\textbf{(E) }6\\qquad$",
+  "answer": "B",
+  "difficulty": 4
+}

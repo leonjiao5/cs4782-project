@@ -1,0 +1,5 @@
+{
+  "problem": "Pablo will decorate each of $6$ identical white balls with either a striped or a dotted pattern, using either red or blue paint. He will decide on the color and pattern for each ball by flipping a fair coin for each of the $12$ decisions he must make. After the paint dries, he will place the $6$ balls in an urn. Frida will randomly select one ball from the urn and note its color and pattern. The events \"the ball Frida selects is red\" and \"the ball Frida selects is striped\" may or may not be independent, depending on the outcome of Pablo's coin flips. The probability that these two events are independent can be written as $\\frac mn,$ where $m$ and $n$ are relatively prime positive integers. What is $m?$ (Recall that two events $A$ and $B$ are independent if $P(A \\text{ and }B) = P(A) \\cdot P(B).$)\n\n$\\textbf{(A) } 243 \\qquad \\textbf{(B) } 245 \\qquad \\textbf{(C) } 247 \\qquad \\textbf{(D) } 249\\qquad \\textbf{(E) } 251$",
+  "answer": "A",
+  "difficulty": 4
+}

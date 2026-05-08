@@ -1,0 +1,5 @@
+{
+  "problem": "A graph is $\\textit{symmetric}$ about a line if the graph remains unchanged after reflection in that line. For how many quadruples of integers $(a,b,c,d)$, where $|a|,|b|,|c|,|d|\\le5$ and $c$ and $d$ are not both $0$, is the graph of $$\ny=\\frac{ax+b}{cx+d}\n$$symmetric about the line $y=x$?\n\n$\\textbf{(A) }1282\\qquad\\textbf{(B) }1292\\qquad\\textbf{(C) }1310\\qquad\\textbf{(D) }1320\\qquad\\textbf{(E) }1330$",
+  "answer": "B",
+  "difficulty": 4
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "Each of the $9$ squares in a ${3 \\times 3}$ grid is to be colored red, blue, or yellow in such a way that each red square shares an edge with at least one blue square, each blue square shares an edge with at least one yellow square, and each yellow square shares an edge with at least one red square. Colorings that can be obtained from one another by rotations and/or reflections are considered the same. How many different colorings are possible?\n\n$\\textbf{(A) } 3 \\qquad \\textbf{(B) } 9 \\qquad \\textbf{(C) } 12 \\qquad \\textbf{(D) } 18 \\qquad \\textbf{(E) } 27$",
+  "answer": "C",
+  "difficulty": 3
+}

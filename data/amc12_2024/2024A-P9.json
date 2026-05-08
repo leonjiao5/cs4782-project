@@ -1,0 +1,5 @@
+{
+  "problem": "Let $M$ be the greatest integer such that both $M + 1213$ and $M + 3773$ are perfect squares. What is the units digit of $M$?\n\n$\\textbf{(A) }1 \\qquad\n\\textbf{(B) }2 \\qquad\n\\textbf{(C) }3 \\qquad\n\\textbf{(D) }6 \\qquad\n\\textbf{(E) }8 \\qquad$",
+  "answer": "E",
+  "difficulty": 2
+}

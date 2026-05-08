@@ -1,0 +1,5 @@
+{
+  "problem": "Jerry wrote down the ones digit of each of the first 2025 positive squares: $1,4, 9,6,5,6,\\dots$. What is the sum of all the numbers Jerry wrote down?\n\n$\\textbf{(A) } 9025 \\qquad\\textbf{(B) } 9070 \\qquad\\textbf{(C) } 9090 \\qquad\\textbf{(D) } 9115 \\qquad\\textbf{(E) } 9160$",
+  "answer": "D",
+  "difficulty": 2
+}

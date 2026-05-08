@@ -1,0 +1,5 @@
+{
+  "problem": "What is the value of\n\n$$\n\\sum_{n=2}^{255} \\frac{\\log_2(1+\\frac{1}{n})}{(\\log_2 n)(\\log_2(n+1))}\n$$\n\n$\\textbf{(A) } \\dfrac{3}{4} \\qquad\\textbf{(B) } 1-\\dfrac{1}{\\log_2 255} \\qquad\\textbf{(C) } \\dfrac{7}{8} \\qquad\\textbf{(D) } \\dfrac{15}{16} \\qquad\\textbf{(E) } 1$",
+  "answer": "C",
+  "difficulty": 2
+}

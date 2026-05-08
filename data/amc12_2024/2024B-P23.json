@@ -1,0 +1,5 @@
+{
+  "problem": "A right pyramid has regular octagon $ABCDEFGH$ with side length $1$ as its base and apex $V.$ Segments $\\overline{AV}$ and $\\overline{DV}$ are perpendicular. What is the square of the height of the pyramid?\n\n$\\textbf{(A) }1 \\qquad\n\\textbf{(B) }\\frac{1+\\sqrt2}{2} \\qquad\n\\textbf{(C) }\\sqrt2 \\qquad\n\\textbf{(D) }\\frac32 \\qquad\n\\textbf{(E) }\\frac{2+\\sqrt2}{3} \\qquad$",
+  "answer": "B",
+  "difficulty": 4
+}

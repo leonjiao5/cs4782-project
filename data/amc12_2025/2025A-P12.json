@@ -1,0 +1,5 @@
+{
+  "problem": "The ''harmonic mean'' of a collection of numbers is the reciprocal of the arithmetic mean of the reciprocals of the numbers in the collection. For example, the harmonic mean of $4,4,$ and $5$ is\n\n$$\n\\frac{1}{\\frac{1}{3}(\\frac{1}{4}+\\frac{1}{4}+\\frac{1}{5})}=\\frac{30}{7}.\n$$\n\nWhat is the harmonic mean of all the real roots of the $4050$th degree polynomial\n\n$$\n\\prod_{k=1}^{2025} (kx^2-4x-3)=(x^2-4x-3)(2x^2-4x-3)(3x^2-4x-3)...(2025x^2-4x-3)?\n$$\n\n\\textbf{(A)}~-\\frac{5}{3}\\qquad\\textbf{(B)}~-\\frac{3}{2}\\qquad\\textbf{(C)}~-\\frac{6}{5}\\qquad\\textbf{(D)}~-\\frac{5}{6}\\qquad\\textbf{(E)}~-\\frac{2}{3}",
+  "answer": "B",
+  "difficulty": 3
+}

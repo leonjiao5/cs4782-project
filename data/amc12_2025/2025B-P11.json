@@ -1,0 +1,5 @@
+{
+  "problem": "Nine athletes, no two of whom are the same height, try out for the basketball team. One at a time, they draw a wristband at random, without replacement, from a bag containing 3 blue bands, 3 red bands, and 3 green bands. They are divided into a blue group, a red group, and a green group. The tallest member of each group is named the group captain. What is the probability that the group captains are the three tallest athletes?\n\n$\\textbf{(A) } \\dfrac{2}{9} \\qquad \\textbf{(B) } \\dfrac{2}{7} \\qquad \\textbf{(C) } \\dfrac{9}{28} \\qquad \\textbf{(D) } \\dfrac{1}{3} \\qquad \\textbf{(E) } \\dfrac{3}{8}$",
+  "answer": "C",
+  "difficulty": 3
+}

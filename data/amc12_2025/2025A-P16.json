@@ -1,0 +1,5 @@
+{
+  "problem": "Triangle $\\triangle ABC$ has side lengths $AB = 80$, $BC = 45$, and $AC = 75$. The bisector $\\angle B$ and the altitude to side $\\overline{AB}$ intersect at point $P$. What is $BP$?\n\n\\textbf{(A)}~18\\qquad\\textbf{(B)}~19\\qquad\\textbf{(C)}~20\\qquad\\textbf{(D)}~21\\qquad\\textbf{(E)}~22",
+  "answer": "D",
+  "difficulty": 3
+}

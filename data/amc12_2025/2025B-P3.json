@@ -1,0 +1,5 @@
+{
+  "problem": "What is the value of $i(i-1)(i-2)(i-3)$, where $i=\\sqrt{-1}$?\n\n$\\textbf{(A) } 6-5i \\qquad\\textbf{(B) } -10i \\qquad\\textbf{(C) } 10i \\qquad\\textbf{(D) } -10 \\qquad\\textbf{(E) } 10$",
+  "answer": "D",
+  "difficulty": 2
+}

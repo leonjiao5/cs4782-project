@@ -1,0 +1,5 @@
+{
+  "problem": "A set of numbers is called sum-free if whenever $x$ and $y$ are (not necessarily distinct) elements of the set, $x+y$ is not an element of the set. For example, $\\{1,4,6\\}$ and the empty set are sum-free, but $\\{2,4,5\\}$ is not. What is the greatest possible number of elements in a sum-free subset of $\\{1,2,3,...,20\\}$?\n\n$\\textbf{(A) } 8 \\qquad\\textbf{(B) } 9 \\qquad\\textbf{(C) } 10 \\qquad\\textbf{(D) } 11 \\qquad\\textbf{(E) } 12$",
+  "answer": "C",
+  "difficulty": 3
+}

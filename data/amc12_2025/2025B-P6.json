@@ -1,0 +1,5 @@
+{
+  "problem": "Emmy says to Max, \"I ordered 36 math club sweatshirts today.\" Max asks, \"How much did each shirt cost?\" Emmy responds, \"I'll give you a hint. The total cost was $\\$\\underline{A}\\;\\underline{B}\\;\\underline{B}\\;.\\underline{B}\\;\\underline{A}$, where $A$ and $B$ are digits and $A \\neq 0$.\" After a pause, Max says, \"That was a good price.\" What is $A+B$?\n\n$\\textbf{(A) } 7 \\qquad\\textbf{(B) } 8 \\qquad\\textbf{(C) } 11 \\qquad\\textbf{(D) } 14 \\qquad\\textbf{(E) } 15$",
+  "answer": "C",
+  "difficulty": 2
+}

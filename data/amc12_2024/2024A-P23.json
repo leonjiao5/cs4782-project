@@ -1,0 +1,5 @@
+{
+  "problem": "What is the value of\n\n$$\n\\tan^2 \\frac {\\pi}{16} \\cdot \\tan^2 \\frac {3\\pi}{16}~ + ~ \\tan^2 \\frac {\\pi}{16} \\cdot \\tan^2 \\frac {5\\pi}{16} ~+~\\tan^2 \\frac {3\\pi}{16} \\cdot \\tan^2 \\frac {7\\pi}{16} ~+~ \\tan^2 \\frac {5\\pi}{16} \\cdot \\tan^2 \\frac {7\\pi}{16}?\n$$\n\n$\\textbf{(A) } 28 \\qquad \\textbf{(B) } 68 \\qquad \\textbf{(C) } 70 \\qquad \\textbf{(D) } 72 \\qquad \\textbf{(E) } 84$",
+  "answer": "B",
+  "difficulty": 4
+}

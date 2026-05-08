@@ -1,0 +1,5 @@
+{
+  "problem": "Agnes writes the following four statements on a blank piece of paper.\n*At least one of these statements is true.\n*At least two of these statements are true.\n*At least two of these statements are false.\n*At least one of these statements is false.\nEach statement is either true or false. How many false statements did Agnes write on the paper?\n\n\\textbf{(A)}~0\\qquad\\textbf{(B)}~1\\qquad\\textbf{(C)}~2\\qquad\\textbf{(D)}~3\\qquad\\textbf{(E)}~4",
+  "answer": "B",
+  "difficulty": 2
+}

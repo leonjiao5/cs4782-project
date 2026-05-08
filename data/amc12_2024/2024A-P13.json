@@ -1,0 +1,5 @@
+{
+  "problem": "The graph of $y=e^{x+1}+e^{-x}-2$ has an axis of symmetry. What is the reflection of the point $(-1,\\tfrac{1}{2})$ over this axis?\n\n$\\textbf{(A) }\\left(-1,-\\frac{3}{2}\\right)\\qquad\\textbf{(B) }(-1,0)\\qquad\\textbf{(C) }\\left(-1,\\tfrac{1}{2}\\right)\\qquad\\textbf{(D) }\\left(0,\\frac{1}{2}\\right)\\qquad\\textbf{(E) }\\left(3,\\frac{1}{2}\\right)$",
+  "answer": "D",
+  "difficulty": 3
+}

@@ -1,0 +1,5 @@
+{
+  "problem": "In the following expression, Melanie changed some of the plus signs to minus signs:$$\n1 + 3+5+7+\\cdots+97+99\n$$When the new expression was evaluated, it was negative. What is the least number of plus signs that Melanie could have changed to minus signs?\n\n$\\textbf{(A) }14 \\qquad\n\\textbf{(B) }15 \\qquad\n\\textbf{(C) }16 \\qquad\n\\textbf{(D) }17 \\qquad\n\\textbf{(E) }18 \\qquad$",
+  "answer": "B",
+  "difficulty": 2
+}

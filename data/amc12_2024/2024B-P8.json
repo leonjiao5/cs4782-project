@@ -1,0 +1,5 @@
+{
+  "problem": "What value of $x$ satisfies$$\n\\frac{\\log_2x\\cdot\\log_3x}{\\log_2x+\\log_3x}=2?\n$$\n$\\textbf{(A) }25\\qquad\n\\textbf{(B) }32\\qquad\n\\textbf{(C) }36\\qquad\n\\textbf{(D) }42\\qquad\n\\textbf{(E) }48\\qquad$",
+  "answer": "C",
+  "difficulty": 2
+}

@@ -1,5 +1,32 @@
 # Data
 
+## Evaluation: AMC12 2024 / 2025
+
+Multiple-choice problems (A–E answers) from the official MAA AMC12 exams. Our primary evaluation benchmark — more problems than AIME and well-suited for measuring adapter quality via logit scoring.
+
+- AMC12 2024: 50 problems (`data/amc12_2024/`)
+- AMC12 2025: 49 problems (`data/amc12_2025/`)
+
+Schema (one JSON per problem):
+```
+{"problem": "...", "answer": "A", "difficulty": <int>}
+```
+
+Each problem is stored as a separate JSON file named by exam + problem number (e.g., `2024A-P10.json`). Answers are single letters A–E.
+
+## Evaluation: MATH Benchmark (Levels 1, 3, 5)
+
+Free-response competition math problems from `hendrycks/competition_mathematics` on HuggingFace. We use a filtered subset of 723 problems spanning difficulty levels 1, 3, and 5 across 7 subject areas (algebra, geometry, number theory, counting, precalculus, probability, intermediate algebra).
+
+- File: `data/math_l135/math_l135.jsonl` (723 rows)
+
+Schema:
+```
+{"id": "...", "problem": "...", "solution": "...", "answer": "...", "level": <1-5>, "type": "<subject>"}
+```
+
+Answers are free-response (extracted from `\boxed{...}` in solution). Used with greedy scoring only.
+
 ## Evaluation: AIME 2024 / 2025
 
 Pulled from HuggingFace via the `datasets` library. Both years are 30 problems (AIME I + II combined).

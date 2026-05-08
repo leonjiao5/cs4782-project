@@ -1,0 +1,5 @@
+{
+  "problem": "How many angles $\\theta$ with $0\\le\\theta\\le2\\pi$ satisfy $\\log(\\sin(3\\theta))+\\log(\\cos(2\\theta))=0$?\n\n$\\textbf{(A) }0 \\qquad \\textbf{(B) }1 \\qquad \\textbf{(C) }2 \\qquad \\textbf{(D) }3 \\qquad \\textbf{(E) }4 \\qquad$",
+  "answer": "A",
+  "difficulty": 2
+}
