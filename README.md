@@ -1,6 +1,6 @@
 # Are You Smarter than DoRA?
 
-Re-implementation of DoRA (Liu et al., ICML 2024) applied to competition mathematics. CS 4782, Cornell, Spring 2026.
+Re-implementation of DoRA (Liu et al., ICML 2024) applied to competition mathematics. Cornell CS 4782, Spring 2026.
 
 **Authors:** Ryan Ye (rmy43), Boaz Ng (bn229), Leon Jiao (lsj47), Aadi Singla (ans262)
 
@@ -14,9 +14,7 @@ Large language model fine-tuning is essential for specializing pre-trained model
 
 **DoRA** (Liu et al., ICML 2024) closes this gap by decomposing the pretrained weight into magnitude and direction components, then applying LoRA only to the direction. The paper's key insight is that full fine-tuning makes *large magnitude changes and small direction changes*, while LoRA can only make direction changes. By separating the two, DoRA more closely mimics full fine-tuning behavior at the same parameter budget.
 
-We re-implement DoRA from scratch in PyTorch and evaluate it on **competition mathematics**: AMC12 2024/2025 and the MATH benchmark — a domain not studied in the original paper. We compare against PEFT-LoRA and use PEFT DoRA as a sanity-check reference, and introduce a three-mode evaluation protocol that reveals a novel "knows but can't say" phenomenon in DoRA.
-
-**Base models:** Qwen2.5-3B and Qwen2.5-3B-Instruct. We chose Qwen over Llama because Qwen's base weights are ungated — no HuggingFace access approval required, which simplified the workflow considerably.
+We re-implement DoRA from scratch in PyTorch.
 
 Original paper: [DoRA: Weight-Decomposed Low-Rank Adaptation, Liu et al., ICML 2024](https://arxiv.org/abs/2402.09353)
 
@@ -24,23 +22,20 @@ Original paper: [DoRA: Weight-Decomposed Low-Rank Adaptation, Liu et al., ICML 2
 
 ## Chosen Result
 
-We aim to reproduce the primary result of the DoRA paper: **DoRA consistently outperforms LoRA at the same rank/parameter budget** (paper Table 2, across NLP and math tasks). A secondary claim is that DoRA at half rank (r = 8) matches full-rank LoRA (r = 16), demonstrating superior parameter efficiency.
-
-We apply this to AMC12 2024/2025 (50 multiple-choice problems each, A–E answers) and the MATH benchmark (723 free-response problems across 5 difficulty levels). Our novel contribution is a **three-scoring-mode evaluation protocol** that decouples *knowledge* from *generation quality*, enabling finer-grained analysis than simple accuracy.
+We aim to reproduce the primary result of the DoRA paper: **DoRA consistently outperforms LoRA at the same rank/parameter budget** (paper Tables 1-4, across NLP and image/video tasks). This would show that DoRA more faithfully exhibits full fine-tuning behavior than LoRA.
 
 ---
 
 ## GitHub Contents
 
 ```
-README.md               ← this file
+README.md               ← this file. Provides an overview of the project and how to reproduce it.
 code/                   ← DoRALinear layer, model wiring, train/eval/data scripts, configs/
 data/                   ← AMC12 2024/2025 + AIME 2024/2025 eval sets; training corpus
 results/                ← aggregated results table, 4 publication figures, example eval outputs
 poster/                 ← in-class presentation poster (PDF)
 report/                 ← 2-page project summary (PDF + LaTeX source)
 requirements.txt        ← Python dependencies
-LICENSE                 ← Apache 2.0
 ```
 
 See `data/README.md` for details on training corpora and leakage filtering.
@@ -49,24 +44,20 @@ See `data/README.md` for details on training corpora and leakage filtering.
 
 ## Re-implementation Details
 
-**DoRA algorithm.** We implement `DoRALinear`, a `nn.Module` wrapping a frozen `nn.Linear`. The effective weight is:
-
-```
-W' = m · (W₀ + s·BA) / ‖W₀ + s·BA‖_c
-```
-
-where `m ∈ R^(1×k)` is a trainable per-column magnitude vector, `B` and `A` are the LoRA low-rank factors, and `‖·‖_c` is the column-wise L2 norm. A critical implementation detail is the **detach trick** (Eq. 11 in the paper): the norm denominator is detached before backpropagation, reducing memory by ~24% at ~0.2pp accuracy cost. After training, `merge()` folds `W'` back into the base weight for zero-overhead inference.
+**DoRA algorithm.** We implement `DoRALinear`, a `nn.Module` wrapping a frozen `nn.Linear`. The effective weight is detailed in the paper and report. This replaces the linear layers in the following modules: `q_proj, k_proj, v_proj, up_proj, down_proj` — 5 of 7 attention/FFN projections.
 
 **Baselines.** Three methods are compared:
 1. **LoRA** — HuggingFace PEFT `LoraConfig(use_dora=False)`
 2. **DoRA** — our from-scratch PyTorch implementation (`code/dora_layers.py`)
 3. **Peft DoRA** — HuggingFace PEFT `LoraConfig(use_dora=True)`, sanity-check reference only
 
-**Model.** Qwen2.5-3B and Qwen2.5-3B-Instruct. Target modules: `q_proj, k_proj, v_proj, up_proj, down_proj` — 5 of 7 attention/FFN projections. Trainable parameters: ~0.71% of the model.
+**Models.** Qwen2.5-3B and Qwen2.5-3B-Instruct. We chose Qwen over Llama because Qwen's base weights are ungated — no HuggingFace access approval required, which simplified the workflow considerably. 
 
 **Training.** SFTTrainer (TRL), rank r = 8, α = 32, dropout = 0.05, LR = 1e-4, cosine schedule, 3% warmup, effective batch size 16, 1–3 epochs. Training tiers: `train_light` (7.5K MATH-lighteval examples), `train_heavy` (27.5K, adds NuminaMath-CoT), `train_s1k` (1K-row subset). Rank sweep: r ∈ {2, 4, 8}.
 
-**Novel evaluation protocol.** Standard greedy accuracy conflates knowledge with generation quality. We introduce three scoring modes:
+**Evaluation.** Models evaluated on competition mathematics: AMC12 2024/2025 (50 multiple choice questions, A-E) and the MATH benchmark (723 free response questions across 5 difficulty levels) — a domain not studied in the original paper. 
+
+**Novel evaluation protocol.** Standard greedy accuracy conflates knowledge with generation quality. We introduce three scoring modes, which enable finer-grained analysis than simple accuracy:
 - **Logit scoring** — append `"\nThe answer is ("` to the prompt, single forward pass, argmax over A–E logits. A pure *knowledge probe*: does the model assign highest probability to the correct answer token?
 - **Two-pass scoring** — generate a full reasoning chain, then re-read answer logits. Tests whether reasoning improves answer selection.
 - **Greedy scoring** — generate full response (up to 2048 tokens), parse `\boxed{}`. Standard *generation quality* metric.
@@ -75,12 +66,18 @@ where `m ∈ R^(1×k)` is a trainable per-column magnitude vector, `B` and `A` a
 
 ## Reproduction Steps
 
+First clone the repo: 
+`git clone https://github.com/leonjiao5/cs4782-project.git`
+
+
+Then run the following commands within the project root directory:
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
 
 # 2. Build training data
-python -m code.data_clean.build --tier train_light
+python -m code.data_clean.build --tier train_light  # Smaller training data corpus, only MATH-lighteval
+python -m code.data_clean.build --tier train        # Larger training data corpus, includes both MATH-lighteval and NuminaMath-CoT
 
 # 3. Train
 python code/train.py --method lora     --config code/configs/default.yaml
@@ -152,7 +149,7 @@ Logit scoring was our most important methodological contribution. Without it, we
 
 At 3B scale with ~7.5K training examples, we are in a regime where PEFT methods struggle more, and DoRA's generation advantage over LoRA has not yet emerged. Our results suggest that more training data (heavy tier) is the single most impactful lever: DoRA heavy goes from worst greedy (12%) to best greedy (46%) among all our fine-tuned models.
 
-Future directions: (1) larger models (7B+) to match the paper's regime, (2) logit-guided or constrained decoding to recover DoRA's latent knowledge, (3) mechanistic investigation of the magnitude vectors `m` to understand which layers drive the logit–greedy gap.
+Future directions: (1) larger models (7B+) to match the paper's regime, (2) logit-guided or constrained decoding to recover DoRA's latent knowledge, (3) scale up training data (artifact for building OpenMathInstruct2 included in the codebase - contains 1M examples).
 
 ---
 
