@@ -188,7 +188,7 @@ def fig_a_scoring_methods(sweep: list[dict], flat: list[dict], out: Path) -> Non
         ("DoRA\nlight (base)",     "peft_dora_train_light",          "dora",     False),
         ("DoRA\nlight (inst)",     "peft_dora_train_light_instruct", "dora",     False),
 #        ("DoRA\nr4 (base)",        "peft_dora_train_light_r4",       "dora",     False),
-        ("DoRA\nheavy (base)",     "peft_dora_train_heavy",          "dora",     True),
+        ("DoRA\nheavy (base)",     "peft_dora_train_heavy",          "dora",     False),
     ]
 
     x  = np.arange(len(groups))
@@ -689,18 +689,20 @@ def fig_h_amc_generalization(sweep: list[dict], flat: list[dict], out: Path) -> 
 
 # ── Figure I: DoRA vs LoRA hero figure ───────────────────────────────────────
 
-def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path) -> None:
+def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
+                        baseline_run: str = "baseline") -> None:
     """Clean head-to-head: logit vs twopass vs greedy for matched LoRA/DoRA pairs."""
     all_rec = sweep + flat
     BM = "amc122024"
 
+    bl_label = "Baseline\n(inst)" if "instruct" in baseline_run else "Baseline\n(base)"
     # (label, run_id, family, no_twopass)
     pairs = [
-        ("Baseline\n(base)",  "baseline",             "baseline", False),
+        (bl_label,            baseline_run,            "baseline", False),
         ("LoRA\nlight",       "lora_train_light",      "lora",     False),
         ("DoRA\nlight",       "peft_dora_train_light",  "dora",    False),
         ("LoRA\nheavy",       "lora_train_heavy",      "lora",     False),
-        ("DoRA\nheavy",       "peft_dora_train_heavy",  "dora",    True),
+        ("DoRA\nheavy",       "peft_dora_train_heavy",  "dora",    False),
     ]
 
     x = np.arange(len(pairs))
@@ -779,9 +781,11 @@ def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path) -> None:
     ax.set_title("DoRA Learns to Speak with Data",
                  fontweight="bold", fontsize=13)
     fig.tight_layout()
-    fig.savefig(out / "figI_dora_vs_lora.png", dpi=150, bbox_inches="tight")
+    suffix = "_instruct" if "instruct" in baseline_run else ""
+    fname = f"figI_dora_vs_lora{suffix}.png"
+    fig.savefig(out / fname, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("Saved figI_dora_vs_lora.png")
+    print(f"Saved {fname}")
 
 
 # ── Figure J: Logit eval explainer ───────────────────────────────────────────
@@ -953,11 +957,11 @@ def save_results_table(sweep: list[dict], flat: list[dict],
                     "amc2024_greedy":  bl(tag, "amc122024", "greedy"),
                     "amc2024_maj16":   bl(tag, "amc122024", "maj16"),
                     "amc2024_logit":   bl(tag, "amc122024", "logit"),
-                    "amc2024_twopass": None,
+                    "amc2024_twopass": bl(tag, "amc122024", "twopass"),
                     "amc2025_greedy":  bl(tag, "amc122025", "greedy"),
                     "amc2025_maj16":   bl(tag, "amc122025", "maj16"),
                     "amc2025_logit":   bl(tag, "amc122025", "logit"),
-                    "amc2025_twopass": None,
+                    "amc2025_twopass": bl(tag, "amc122025", "twopass"),
                     "aime2024_greedy": bl(tag, "aime2024", "greedy"),
                     "aime2024_maj16":  bl(tag, "aime2024", "maj16"),
                 }
@@ -1013,6 +1017,7 @@ def main() -> None:
     fig_g_math_by_level(math, args.out_dir)
     #fig_h_amc_generalization(sweep, flat, args.out_dir)
     fig_i_dora_vs_lora(sweep, flat, args.out_dir)
+    fig_i_dora_vs_lora(sweep, flat, args.out_dir, baseline_run="baseline_instruct")
     fig_j_logit_explainer(args.out_dir)
 
     save_results_table(sweep, flat, math, TABLES_DIR / "results_table.csv")
