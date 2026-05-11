@@ -3,6 +3,8 @@
 \usepackage[margin=0.65in,top=0.70in,bottom=0.70in]{geometry}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{../results/figures/}}
 \usepackage{enumitem}
 \usepackage{microtype}
 \usepackage{amsmath}
@@ -11,28 +13,7 @@
 \usepackage{xcolor}
 \usepackage{titlesec}
 \usepackage{caption}
-\usepackage{multicol}
 \usepackage{parskip}
-\usepackage{listings}
-\usepackage{lstautogobble}
-
-\lstset{
-  language=Python,
-  basicstyle=\ttfamily\footnotesize,
-  keywordstyle=\bfseries\color{blue!70!black},
-  commentstyle=\color{gray},
-  stringstyle=\color{orange!80!black},
-  breaklines=true,
-  autogobble=true,
-  frame=single,
-  framesep=3pt,
-  xleftmargin=6pt,
-  xrightmargin=6pt,
-  numbers=left,
-  numberstyle=\tiny\color{gray},
-  numbersep=5pt,
-  showstringspaces=false,
-}
 
 \setlength{\parskip}{3pt}
 \setlength{\parindent}{0pt}
@@ -60,135 +41,57 @@
 \maketitle
 \thispagestyle{empty}
 
-% ─────────────────────────────────────────────────────────────────
 \section{Introduction}
-% ─────────────────────────────────────────────────────────────────
 
-Large language model fine-tuning is essential for specializing pre-trained models to new domains, but full fine-tuning updates billions of parameters at prohibitive cost. Parameter-Efficient Fine-Tuning (PEFT) methods address this by training only a small number of adapter parameters while keeping the base model frozen.
+Large language model fine-tuning updates billions of parameters at prohibitive cost. Parameter-Efficient Fine-Tuning (PEFT) methods address this by training a small number of adapter parameters while keeping the base model frozen. \textbf{LoRA} \cite{hu2022lora} adds a low-rank update $\Delta W = BA$ to frozen weight $W_0$ and is the dominant PEFT approach, but still shows a gap vs.\ full fine-tuning.
 
-\textbf{LoRA} \cite{hu2022lora} is the most widely used PEFT approach: it adds a low-rank update $\Delta W = BA$ ($B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$, $r \ll \min(d,k)$) to a frozen weight matrix $W_0$. While effective, LoRA still shows a notable accuracy gap compared to full fine-tuning.
+\textbf{DoRA} \cite{liu2024dora} decomposes $W_0$ into magnitude and direction, applying LoRA only to the direction. The key insight is that full fine-tuning makes \emph{large magnitude changes and small direction changes}, while LoRA can only change direction. Separating the two lets DoRA more closely mimic full fine-tuning behavior at the same parameter budget.
 
-\textbf{DoRA} \cite{liu2024dora} closes this gap by decomposing $W_0$ into magnitude and direction, then applying LoRA only to the direction. The key insight from the paper is that full fine-tuning tends to make \emph{large magnitude changes and small direction changes}, while LoRA can only make direction changes. By explicitly separating the two components, DoRA more closely mimics full fine-tuning behavior with the same parameter budget.
+We re-implement DoRA from scratch in PyTorch and evaluate on \emph{competition mathematics}---AMC12 2024/2025 and the MATH benchmark---a domain not studied in the original paper. We introduce a three-mode evaluation protocol that reveals a novel ``knows but can't say'' phenomenon in DoRA.
 
-We re-implement DoRA from scratch in PyTorch and evaluate it on \emph{competition mathematics}: AMC12 2024/2025 and the MATH benchmark --- a new domain not studied in the original paper. We compare our implementation against PEFT-LoRA and PEFT-DoRA baselines, and introduce a three-mode evaluation protocol that reveals a novel ``knows but can't say'' phenomenon in DoRA.
-
-% ─────────────────────────────────────────────────────────────────
 \section{Chosen Result}
-% ─────────────────────────────────────────────────────────────────
 
-We aim to reproduce the primary result of the DoRA paper: \textbf{DoRA consistently outperforms LoRA at the same rank/parameter budget} (paper Table 2, across NLP tasks including math and commonsense reasoning). A secondary claim is that DoRA at half rank ($r = 8$) matches full-rank LoRA ($r = 16$), demonstrating superior parameter efficiency.
+We aim to reproduce the primary result of the DoRA paper: \textbf{DoRA consistently outperforms LoRA at the same rank/parameter budget} (paper Table~2, which reports accuracy across commonsense reasoning and math tasks for LLaMA-7B/13B). A secondary claim is that DoRA at half rank ($r{=}8$) matches full-rank LoRA ($r{=}16$), demonstrating superior parameter efficiency.
 
-We apply this to AMC12 2024/2025 (50 multiple-choice problems each, answers A--E) and the MATH benchmark (723 free-response problems across 5 difficulty levels). Our novel contribution is a three-scoring-mode evaluation protocol that decouples \emph{knowledge} from \emph{generation quality}, enabling finer-grained analysis than simple accuracy.
+We chose this result because it is the paper's central empirical claim and directly tests whether the magnitude--direction decomposition provides a measurable advantage over standard LoRA. Reproducing it on a new domain---competition mathematics (AMC12 2024/2025, 50 multiple-choice problems each; MATH benchmark, 723 free-response problems across 5 difficulty levels)---and at a smaller scale (3B vs.\ the paper's 7B--13B) tests the generality of the finding. Our novel contribution is a three-scoring-mode evaluation protocol that decouples \emph{knowledge} from \emph{generation quality}, enabling finer-grained analysis than simple accuracy.
 
-% ─────────────────────────────────────────────────────────────────
 \section{Methodology}
-% ─────────────────────────────────────────────────────────────────
 
 \subsection{DoRA Algorithm}
 
 DoRA adapts a frozen weight $W_0 \in \mathbb{R}^{d \times k}$ as:
-\begin{equation}
+\[
   W' = \mathbf{m} \cdot \frac{W_0 + s \cdot BA}{\|W_0 + s \cdot BA\|_c}
-  \label{eq:dora}
-\end{equation}
-where $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$ are low-rank LoRA factors initialized with $B = 0$ and $A$ Kaiming uniform; $s = \alpha / r$ is a scaling factor; $\mathbf{m} \in \mathbb{R}^{1 \times k}$ is a trainable per-column magnitude vector initialized to $\|W_0\|_c$; and $\|\cdot\|_c$ denotes the column-wise $\ell_2$ norm. Only $\mathbf{m}$, $B$, and $A$ are trained; $W_0$ is frozen.
+\]
+where $B, A$ are low-rank LoRA factors ($r \ll \min(d,k)$); $s{=}\alpha/r$; $\mathbf{m}$ is a trainable per-column magnitude vector initialized to $\|W_0\|_c$; and $\|\cdot\|_c$ is the column-wise $\ell_2$ norm. Only $\mathbf{m}$, $B$, $A$ are trained; $W_0$ is frozen.
 
-\textbf{Critical implementation detail --- the detach trick} (Eq.~11 in \cite{liu2024dora}): the denominator $\|W_0 + s \cdot BA\|_c$ is \emph{detached} before backpropagation. Without detaching, gradients flow through the norm, increasing memory by 24.4\% on LLaMA-7B with only $\sim$0.2pp accuracy cost. Our implementation:
-\begin{verbatim}
-col_norm = weight_eff.norm(
-    p=2, dim=0, keepdim=True
-).detach().clamp_min(1e-12)
-W_prime = (m / col_norm) * weight_eff
-\end{verbatim}
+A critical implementation detail is the \textbf{detach trick} (Eq.~11 in \cite{liu2024dora}): the norm denominator is detached before backpropagation, saving 24.4\% memory on LLaMA-7B at $\sim$0.2pp accuracy cost. After training, \texttt{merge()} fuses $W'$ back into the base weight for zero-overhead inference.
 
-\textbf{Merge/unmerge for zero inference cost:} after training, we call \texttt{merge()}, which fuses $W'$ back into the base layer weight and discards LoRA parameters, yielding a standard \texttt{nn.Linear} at inference with no latency overhead.
+\subsection{Implementation \& Setup}
 
-\subsection{Implementation}
+We compare: (1)~\textbf{PEFT-LoRA} (\texttt{use\_dora=False}), (2)~\textbf{DoRA (PEFT)} (\texttt{use\_dora=True}, reference), and (3)~\textbf{Custom DoRA} (our from-scratch implementation). Base model: Qwen2.5-3B (base and instruct variants), with ${\sim}0.71\%$ parameters trainable across \texttt{q/k/v\_proj} and \texttt{up/down\_proj}.
 
-We implement \texttt{DoRALinear}, a \texttt{nn.Module} that wraps a frozen \texttt{nn.Linear} layer and replaces its forward pass. The helper \texttt{apply\_dora\_to\_module()} recursively traverses a model and replaces target layers by name. This approach is framework-agnostic and does not depend on PEFT's internal structure.
+\textbf{Training data:} \texttt{train\_light} (MATH-lighteval \cite{matheval}, $\sim$7.5K rows), \texttt{train\_heavy} (+NuminaMath-CoT \cite{numina}, $\sim$27.5K total), and \texttt{train\_s1k} (1K subset). A 4-stage leakage-prevention pipeline (exact match $\to$ fuzzy Jaccard $\to$ answer cross-check) removed 0 eval problems.
 
-We compare three methods:
+\textbf{Hyperparameters:} SFTTrainer, rank $r{=}8$, $\alpha{=}32$, dropout $0.05$, LR $10^{-4}$ (cosine, 3\% warmup), effective batch size 16, 1--3 epochs.
+
+\subsection{Evaluation Protocol}
+
+Standard greedy accuracy conflates knowledge with generation quality. We introduce three scoring modes for AMC12's multiple-choice format:
 \begin{enumerate}[leftmargin=*, noitemsep, topsep=2pt]
-  \item \textbf{PEFT-LoRA}: HuggingFace PEFT \texttt{LoraConfig(use\_dora=False)}
-  \item \textbf{DoRA (PEFT)}: HuggingFace PEFT \texttt{LoraConfig(use\_dora=True)} --- reference implementation
-  \item \textbf{Custom DoRA}: our from-scratch PyTorch implementation
+  \item \textbf{Logit}: append ``\texttt{\textbackslash nThe answer is (}'' $\to$ single forward pass $\to$ argmax over A--E logits. Pure \emph{knowledge probe}.
+  \item \textbf{Two-pass}: generate a full reasoning chain, then re-read answer logits. Tests whether reasoning improves selection.
+  \item \textbf{Greedy}: generate full response, parse \texttt{\textbackslash boxed\{\}}. Standard \emph{generation quality} metric.
 \end{enumerate}
+This lets us ask: does a model \emph{know} the answer (logit) but \emph{fail to say it} (greedy)?
 
-\textbf{Base model:} Qwen2.5-3B (base and instruct variants). Target modules: \texttt{q\_proj, k\_proj, v\_proj, up\_proj, down\_proj} --- 5 of 7 attention/FFN projections. Total trainable parameters: $\sim$0.71\% of the model. Full implementation in Appendix~\ref{app:dora}.
-
-\subsection{Datasets}
-
-\textbf{Training tiers} --- all rows share the schema \texttt{\{problem, solution, answer, source\}}:
-\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
-  \item \texttt{train\_light}: MATH-lighteval \cite{matheval} ($\sim$7,498 rows; pure math: algebra, geometry, number theory, counting, precalc). Each row contains a full step-by-step solution ending in \texttt{\textbackslash boxed\{answer\}}.
-  \item \texttt{train\_heavy}: \texttt{train\_light} + NuminaMath-CoT \cite{numina} subset ($\sim$27,500 total). NuminaMath adds physics, proof-style, and olympiad problems from a wider range of sources.
-  \item \texttt{train\_s1k}: 1,000-row subset of \texttt{train\_light}.
-\end{itemize}
-
-\textbf{Example training rows:}
-
-\noindent\textit{MATH-lighteval (algebra):}
-\begin{quote}\small
-\textbf{Problem:} In a 8 fl.\ oz.\ bottle of Vitamin Water, there are 125 calories. How many calories in a 12 fl.\ oz.\ bottle? \quad\textbf{Answer:} \texttt{187.5}
-\end{quote}
-
-\noindent\textit{NuminaMath-CoT (geometry):}
-\begin{quote}\small
-\textbf{Problem:} All vertices of right triangle $ABC$ lie on $y{=}x^2$; hypotenuse $AB$ is parallel to the $x$-axis. Prove the height $CD = 1$. \quad\textbf{Answer:} \texttt{1}
-\end{quote}
-
-\textbf{Leakage prevention:} 4-stage pipeline (exact match $\to$ fuzzy 5-shingle Jaccard $\geq 0.6$ $\to$ answer cross-check $\to$ audit log); 0 problems dropped.
-
-\textbf{Evaluation datasets} use different schemas:
-
-\textit{AMC12 2024/2025} --- schema \texttt{\{problem, answer, difficulty\}}, 50 problems per year (A--E multiple choice from official MAA exams):
-\begin{quote}\small
-\textbf{Problem:} What is the value of $9901{\cdot}101 - 99{\cdot}10101$? \textbf{(A)} 2 \textbf{(B)} 20 \textbf{(C)} 200 \textbf{(D)} 202 \textbf{(E)} 2020. \quad\textbf{Answer:} \texttt{A}
-\end{quote}
-
-\textit{MATH benchmark} --- schema \texttt{\{id, problem, solution, answer, level, type\}}, 723 problems across levels 1--5 and 7 types (algebra, geometry, number theory, etc.):
-\begin{quote}\small
-\textbf{L1 (algebra):} In a 8 fl.\ oz.\ bottle there are 125 calories; how many in 12 fl.\ oz.? \quad\textbf{Ans:} \texttt{187.5}
-
-\textbf{L3 (geometry):} Kite $ABCD$ with $A(0,7)$, $B(1,0)$, $C(12,{-}2)$, $D(7,8)$; find area. \quad\textbf{Ans:} \texttt{75}
-
-\textbf{L5 (algebra):} Evaluate $i^5 + i^{-25} + i^{45}$. \quad\textbf{Ans:} \texttt{i}
-\end{quote}
-
-\subsection{Training Setup}
-
-We use TRL's \texttt{SFTTrainer} for supervised fine-tuning on (problem, solution) pairs. Hyperparameters: rank $r = 8$, $\alpha = 32$, dropout $= 0.05$, learning rate $1 \times 10^{-4}$, cosine LR schedule, 3\% warmup, effective batch size 16 (per-device 1, gradient accumulation 16), 1--3 epochs.
-
-\subsection{Novel Evaluation Protocol}
-
-Standard greedy accuracy conflates knowledge with generation quality. We introduce three scoring modes:
-
-\begin{enumerate}[leftmargin=*, noitemsep, topsep=2pt]
-  \item \textbf{Logit scoring}: append ``\texttt{\textbackslash nThe answer is (}'' to the prompt $\to$ single forward pass $\to$ read logits for tokens A/B/C/D/E $\to$ argmax. A pure \emph{knowledge probe}: does the model assign highest probability to the correct answer token?
-  \item \textbf{Two-pass scoring}: generate a full reasoning chain, then append the suffix and read answer logits. Tests whether reasoning improves answer selection.
-  \item \textbf{Greedy scoring}: generate a full response (up to 2048 tokens) and parse the $\backslash$\texttt{boxed\{\}} answer. Standard \emph{generation quality} metric.
-\end{enumerate}
-
-This protocol lets us ask: does a model \emph{know} the answer (logit) but \emph{fail to say it} (greedy)? As we show below, this distinction is the central finding of our work. Figure~\ref{fig:explainer} illustrates logit scoring visually. Implementation is in Appendix~\ref{app:eval}.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\linewidth]{../results/figures/figJ_logit_explainer.png}
-  \caption{Logit scoring (right) reads the model's internal answer belief with a single forward pass, vs.\ greedy generation (left) which requires parsing a full output sequence.}
-  \label{fig:explainer}
-\end{figure}
-
-% ─────────────────────────────────────────────────────────────────
 \section{Results \& Analysis}
-% ─────────────────────────────────────────────────────────────────
 
-\subsection{AMC12 2024 Main Results}
+\subsection{AMC12 2024}
 
-Table~\ref{tab:amc2024} summarizes performance across all three scoring modes on AMC12 2024. Figure~\ref{fig:main} shows the same results visually.
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{AMC12 2024 accuracy by scoring mode. $\Delta$ = logit $-$ greedy. Best per column in \textbf{bold}.}
+\caption{AMC12 2024 accuracy. $\Delta$ = logit $-$ greedy. Best per column \textbf{bold}.}
 \label{tab:amc2024}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -196,35 +99,33 @@ Table~\ref{tab:amc2024} summarizes performance across all three scoring modes on
 \toprule
 Model & Logit & 2-pass & Greedy & $\Delta$ \\
 \midrule
-Base (3B-base)       & 32\% & ---  & ---    & ---      \\
-Base (3B-inst)       & 34\% & ---  & 44\%   & $-10$pp  \\
+Base (3B-base)     & 32\% & ---  & ---  & ---     \\
+Base (3B-inst)     & 34\% & ---  & 44\% & $-10$pp \\
 \midrule
-LoRA light (base)    & 38\% & 24\% & 18\%   & $+20$pp  \\
-LoRA light (inst)    & \textbf{44\%} & 32\% & 10\%  & $+34$pp \\
-LoRA heavy (base)    & 34\% & 32\% & 36\%   & $-2$pp   \\
+LoRA light (base)  & 38\% & 24\% & 18\% & $+20$pp \\
+LoRA light (inst)  & \textbf{44\%} & 32\% & 10\% & $+34$pp \\
+LoRA heavy (base)  & 34\% & 32\% & 36\% & $-2$pp  \\
 \midrule
-DoRA light (base)    & 38\% & 28\% & 12\%   & $+26$pp  \\
-DoRA light (inst)    & 36\% & 24\% & 8\%    & $+28$pp  \\
-DoRA heavy (base)    & 32\% & ---  & \textbf{46\%} & $-14$pp \\
-DoRA r4 (base)       & \textbf{44\%} & --- & 16\% & $+28$pp \\
+DoRA light (base)  & 38\% & 28\% & 12\% & $+26$pp \\
+DoRA light (inst)  & 36\% & 24\% & 8\%  & $+28$pp \\
+DoRA heavy (base)  & 32\% & ---  & \textbf{46\%} & $-14$pp \\
+DoRA r4 (base)     & \textbf{44\%} & --- & 16\% & $+28$pp \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{../results/figures/figI_dora_vs_lora.png}
-  \caption{DoRA vs.\ LoRA on AMC12 2024 across all three scoring modes. DoRA's logit--greedy gap ($\Delta$) is consistently larger than LoRA's. The base model logit (32\%) is shown as a dotted reference line.}
+  \includegraphics[width=\linewidth]{figI_dora_vs_lora.png}
+  \caption{DoRA vs.\ LoRA on AMC12 2024. DoRA's logit--greedy gap is consistently larger. Base model logit (32\%) shown as dotted reference.}
   \label{fig:main}
 \end{figure}
 
 \subsection{MATH Benchmark}
 
-Table~\ref{tab:math} shows MATH benchmark accuracy. Figure~\ref{fig:math} shows the breakdown by difficulty level.
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{MATH benchmark accuracy (greedy). Best in \textbf{bold}.}
+\caption{MATH benchmark greedy accuracy. Best \textbf{bold}.}
 \label{tab:math}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -232,73 +133,62 @@ Table~\ref{tab:math} shows MATH benchmark accuracy. Figure~\ref{fig:math} shows 
 \toprule
 Model & Overall & L1 & L3 & L5 \\
 \midrule
-Baseline (base)      & 43.8\% & 74.3\% & 57.6\% & 22.1\% \\
-Baseline (instruct)  & \textbf{52.7\%} & \textbf{82.6\%} & \textbf{66.1\%} & \textbf{31.4\%} \\
-LoRA s1k (inst)      & 44.8\% & 77.1\% & 56.5\% & 24.2\% \\
-LoRA heavy (base)    & 35.0\% & 73.4\% & 43.5\% & 15.1\% \\
-DoRA light (base)    & 30.7\% & 70.6\% & 36.4\% & 12.7\% \\
+Baseline (base)     & 43.8\% & 74.3\% & 57.6\% & 22.1\% \\
+Baseline (inst)     & \textbf{52.7\%} & \textbf{82.6\%} & \textbf{66.1\%} & \textbf{31.4\%} \\
+LoRA s1k (inst)     & 44.8\% & 77.1\% & 56.5\% & 24.2\% \\
+LoRA heavy (base)   & 35.0\% & 73.4\% & 43.5\% & 15.1\% \\
+DoRA light (base)   & 30.7\% & 70.6\% & 36.4\% & 12.7\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{../results/figures/figG_math_by_level.png}
-  \caption{MATH accuracy by difficulty level (1=easy, 5=hard). DoRA light collapses fastest at hard problems. LoRA s1k (instruct, 1K training examples) tracks the baseline most closely.}
+  \includegraphics[width=\linewidth]{figG_math_by_level.png}
+  \caption{MATH accuracy by difficulty level. DoRA light collapses fastest at hard problems; LoRA s1k tracks the baseline most closely.}
   \label{fig:math}
 \end{figure}
 
 \subsection{Key Findings}
 
-\textbf{Finding 1 --- ``DoRA knows but can't say'' (main finding).}
-The logit--greedy gap is consistently and significantly larger for DoRA than LoRA at the same training configuration. DoRA light shows $\Delta = +26$pp vs.\ LoRA light's $\Delta = +20$pp. This means DoRA assigns high probability to the correct answer token internally, but fails to produce it through generation. We hypothesize that DoRA's magnitude--direction decomposition reorganizes how the model stores knowledge in a way that makes it harder to verbalize, even when the representation is correct.
+\textbf{F1 --- ``DoRA knows but can't say'' (main finding).} DoRA's logit--greedy gap ($\Delta$) is consistently larger than LoRA's at the same configuration: DoRA light $\Delta{=}{+}26$pp vs.\ LoRA light $\Delta{=}{+}20$pp. DoRA assigns high probability to the correct answer internally but fails to produce it through generation, suggesting its magnitude--direction decomposition reorganizes knowledge representations in ways that impede verbalization.
 
-\textbf{Finding 2 --- More training data closes, and eventually reverses, the logit--greedy gap.}
-Both LoRA and DoRA benefit from more data, but in different ways. LoRA heavy (3.7$\times$ more data) gradually closes its gap: logit $\approx$ greedy ($34\% \approx 36\%$, $\Delta = -2$pp). DoRA heavy shows a more dramatic shift: greedy ($46\%$) \emph{exceeds} logit ($32\%$), $\Delta = -14$pp --- the gap fully reverses. DoRA heavy achieves the highest greedy accuracy of any fine-tuned model. Interestingly, while both methods move in the same direction (more data $\to$ greedy improves relative to logit), DoRA's swing is much larger, going from $\Delta = +26$pp (light) to $\Delta = -14$pp (heavy). This suggests DoRA particularly benefits from additional training signal to learn fluent generation, while LoRA converges more smoothly.
+\textbf{F2 --- More data closes and reverses the gap.} LoRA heavy ($3.7{\times}$ more data) nearly equalizes logit and greedy ($\Delta{=}{-}2$pp). DoRA heavy reverses dramatically---greedy (46\%) exceeds logit (32\%), $\Delta{=}{-}14$pp---achieving the best greedy accuracy of any fine-tuned model. DoRA's larger swing suggests it particularly needs training signal to learn fluent generation.
 
-\textbf{Finding 3 --- Knowledge is rank-invariant for DoRA.}
-Across r2, r4, and r8, DoRA logit accuracy stays near 42--44\%. Knowledge representation is captured regardless of rank. However, DoRA greedy accuracy remains low at all ranks (12--16\%), while LoRA greedy improves more readily with rank. This suggests the logit--greedy gap is a property of DoRA's adaptation mechanism, not its capacity.
+\textbf{F3 --- Knowledge is rank-invariant for DoRA.} Across r2, r4, r8, DoRA logit accuracy stays near 42--44\%, while greedy remains low (12--16\%) at all ranks. LoRA greedy improves more readily with rank, suggesting the gap is a property of DoRA's adaptation mechanism rather than its capacity.
 
-\textbf{Finding 4 --- MATH regression is worse for DoRA.}
-Fine-tuning on AMC-style data hurts general math reasoning. DoRA light falls 13pp below baseline (30.7\% vs.\ 43.8\%), worse than LoRA heavy (35.0\%). Notably, LoRA s1k (1K-example instruct fine-tune) nearly preserves MATH (44.8\%), suggesting small targeted datasets cause less catastrophic interference with general knowledge. DoRA's magnitude decomposition may cause more aggressive weight modification, amplifying this effect.
+\textbf{F4 --- MATH regression is worse for DoRA.} Fine-tuning on AMC-style data hurts general math reasoning: DoRA light falls 13pp below baseline (30.7\% vs.\ 43.8\%), while LoRA s1k (1K instruct examples) nearly preserves the baseline (44.8\%). Small, targeted datasets appear to cause less catastrophic interference.
 
-\textbf{Finding 5 --- Partial replication of the paper.}
-The original DoRA paper demonstrates DoRA $>$ LoRA on 7B models across NLP tasks. At the logit (knowledge) level, we reproduce this: DoRA r4 matches the best LoRA logit result (both 44\%). However, greedy accuracy does not confirm DoRA $>$ LoRA at 3B scale. Likely causes: (a) model scale (3B vs.\ 7B in paper), (b) math is more domain-specific than commonsense, (c) our training data is smaller. The paper's claims may require larger models to fully manifest.
+\textbf{F5 --- Partial replication.} At the knowledge level (logit), we reproduce the paper's claim: DoRA r4 matches the best LoRA logit result (both 44\%). Greedy accuracy does not confirm DoRA $>$ LoRA at 3B scale---likely due to model scale (3B vs.\ 7B in paper) and our smaller training set.
 
-% ─────────────────────────────────────────────────────────────────
+\subsection{Constraints and Context}
+Re-implementation posed three key challenges: the detach trick (Eq.~11) is described briefly but is critical for memory efficiency---omitting it caused OOM on our GPU budget; compute constraints forced us to use Qwen2.5-3B rather than the paper's 7B/13B LLaMA, complicating direct comparison; and the \texttt{train\_heavy} tier mixes MATH-lighteval and NuminaMath-CoT, so accuracy gains may partly reflect distribution shift rather than scale alone. 
+
+Regarding the paper's central claim that decomposing magnitude and direction better mimics full fine-tuning, our results are mixed. DoRA matches or exceeds LoRA on logit-based metrics (representation), confirming the decomposition encodes knowledge effectively. However, DoRA consistently underperforms LoRA on generation accuracy until given substantially more data, suggesting the decomposition disrupts the model's ability to produce correct outputs even when internal representations are strong. We term this the ``knows but can't say'' gap. Crucially, the original paper's evaluation, greedy accuracy on 7B/13B models, would not surface this failure mode, raising the question of whether DoRA's advantages hold at smaller scales or under tighter data regimes.
+
 \section{Reflections}
-% ─────────────────────────────────────────────────────────────────
 
-\textbf{Logit scoring as a knowledge probe.}
-The three-mode evaluation protocol was our most important methodological contribution. Standard greedy evaluation would have shown only that DoRA underperforms LoRA on generation. Logit scoring revealed that DoRA actually \emph{learns the right answer} --- it just cannot verbalize it. Two-pass scoring (generate reasoning, then read logits) provides an intermediate point: DoRA two-pass consistently falls between logit and greedy, suggesting reasoning chains partially help but do not fully close the generation gap. This insight opens a new research question: can logit-guided decoding recover DoRA's latent knowledge?
+\textbf{Logit scoring as a knowledge probe.} Our three-mode evaluation was the most important methodological contribution. Without it, we would have concluded a failed replication---DoRA appears to underperform LoRA on generation. Logit scoring revealed DoRA actually \emph{learns the correct answer}; it just cannot always verbalize it. This raises a new research question: can logit-guided or constrained decoding recover DoRA's latent knowledge?
 
-\textbf{Scale limitations.}
-The original paper evaluates on 7B--13B models with large, high-quality datasets (e.g., MetaMathQA, commonsense datasets). At 3B with $\sim$7.5K training problems, our setup is a harder regime where PEFT methods struggle more, and the gains from DoRA over LoRA may not yet be visible in generation. Our results suggest 3B is below the threshold where DoRA's advantages over LoRA clearly manifest in generation quality.
+\textbf{Scale matters.} The original paper evaluates 7B--13B models on large, high-quality datasets. At 3B with $\sim$7.5K training examples, we are in a regime where PEFT methods struggle more. Our results suggest 3B is below the threshold where DoRA's generation advantage over LoRA clearly manifests. DoRA heavy (27.5K examples) is the closest we get, achieving the best greedy accuracy---confirming that data scale is the key lever.
 
-\textbf{Future directions.}
-\begin{enumerate}[leftmargin=*, noitemsep, topsep=2pt]
-  \item \textbf{Larger models}: 7B+ to match the paper's regime, where DoRA's generation advantage may materialize.
-  \item \textbf{Harder benchmarks}: AIME 2024/2025 (30 free-response problems, much harder than AMC12).
-  \item \textbf{Decoding interventions}: given DoRA ``knows but can't say,'' can logit-guided or constrained decoding recover the latent knowledge?
-  \item \textbf{Mechanistic understanding}: why does DoRA's magnitude decomposition create a larger logit--greedy gap? Probing the magnitude vectors ($\mathbf{m}$) may reveal which layers and features drive this behavior.
-\end{enumerate}
+\textbf{Future directions.} (1) Scale to 7B+ to match the paper's regime. (2) Apply logit-guided decoding to recover DoRA's latent knowledge. (3) Probe magnitude vectors ($\mathbf{m}$) mechanistically to understand which layers drive the logit--greedy gap.
 
-% ─────────────────────────────────────────────────────────────────
-
+\newpage
 \onecolumn
-\small
+{\small
 \bibliographystyle{plain}
 \begin{thebibliography}{9}
 
 \bibitem{liu2024dora}
-S.-Y.\ Liu, C.-Y.\ Wang, H.\ Yin, P.\ Molchanov, Y.-C.\ F.\ Wang, K.-T.\ Cheng, M.-H.\ Chen.
+S.-Y.\ Liu et al.
 \textit{DoRA: Weight-Decomposed Low-Rank Adaptation}.
-41st International Conference on Machine Learning (ICML), 2024.
+ICML, 2024.
 
 \bibitem{hu2022lora}
-E.\ J.\ Hu, Y.\ Shen, P.\ Wallis, Z.\ Allen-Zhu, Y.\ Li, S.\ Wang, L.\ Wang, W.\ Chen.
+E.\ J.\ Hu et al.
 \textit{LoRA: Low-Rank Adaptation of Large Language Models}.
-International Conference on Learning Representations (ICLR), 2022.
+ICLR, 2022.
 
 \bibitem{matheval}
 DigitalLearningGmbH.
@@ -313,170 +203,16 @@ AI-MO / Hugging Face, 2024.
 \url{https://huggingface.co/datasets/AI-MO/NuminaMath-CoT}
 
 \bibitem{peft}
-S.\ Mangrulkar, S.\ Gugger, L.\ Debut, Y.\ Belkada, S.\ Paul, B.\ Bossan.
+S.\ Mangrulkar et al.
 \textit{PEFT: State-of-the-art Parameter-Efficient Fine-Tuning methods}.
 Hugging Face, 2022.
-\url{https://github.com/huggingface/peft}
 
 \bibitem{qwen}
 Qwen Team.
 \textit{Qwen2.5: A Party of Foundation Language Models}.
 Alibaba Cloud, 2024.
-\url{https://huggingface.co/Qwen/Qwen2.5-3B}
 
 \end{thebibliography}
-
-% ─────────────────────────────────────────────────────────────────
-\appendix
-\section{DoRA Implementation (\texttt{code/dora\_layers.py})}
-\label{app:dora}
-
-The full \texttt{DoRALinear} layer and model injection helper. The key equations are in \texttt{\_compute\_scaled\_weight}: the LoRA update is added to the frozen base weight, the column-wise norm is computed and detached, and the magnitude vector $\mathbf{m}$ rescales the result.
-
-\begin{lstlisting}
-class DoRALinear(nn.Module):
-    def __init__(self, base: nn.Linear, rank: int,
-                 alpha: float, dropout: float):
-        super().__init__()
-        self.base = base          # frozen pretrained weight W_0
-        self.scaling = alpha / rank  # LoRA scaling factor s = alpha/r
-        in_f, out_f = base.in_features, base.out_features
-        dev, dtype = base.weight.device, base.weight.dtype
-
-        # Low-rank factors: B (d x r) init=zeros, A (r x k) Kaiming
-        # At init, BA=0 so W' = W_0 (no change until training starts)
-        self.lora_A = nn.Parameter(
-            torch.zeros((rank, in_f), device=dev, dtype=dtype))
-        self.lora_B = nn.Parameter(
-            torch.zeros((out_f, rank), device=dev, dtype=dtype))
-        nn.init.kaiming_uniform_(self.lora_A, a=0)
-
-        with torch.no_grad():
-            # m initialized to ||W_0||_c so W' = W_0 at step 0
-            self.m = nn.Parameter(
-                base.weight.norm(p=2, dim=0, keepdim=True).clone())
-
-        # Freeze base weight: only m, lora_A, lora_B are trainable
-        for p in self.base.parameters():
-            p.requires_grad = False
-        self.dropout = nn.Dropout(p=dropout)
-
-    def _compute_scaled_weight(self) -> torch.Tensor:
-        # Step 1: compute the effective weight W_0 + s*BA (Eq. 5 numerator)
-        lora_update = (self.lora_B @ self.lora_A) * self.scaling
-        weight_eff  = self.base.weight + lora_update
-
-        # Step 2: column-wise L2 norm, detached (Eq. 11 detach trick).
-        # Detaching stops gradients flowing through the norm denominator,
-        # saving ~24% memory at ~0.2pp accuracy cost (per paper ablation).
-        col_norm = weight_eff.norm(
-            p=2, dim=0, keepdim=True
-        ).detach().clamp_min(1e-12)  # clamp avoids division by zero
-
-        # Step 3: rescale by learned magnitude m --- Eq. 5
-        return (self.m / col_norm) * weight_eff
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if self.merged:
-            # After merge(), W' is already baked into base.weight
-            return self.base(x)
-        # Apply dropout to input, then matmul with DoRA-scaled weight
-        return F.linear(self.dropout(x),
-                        self._compute_scaled_weight(),
-                        self.base.bias)
-
-    def merge(self) -> None:
-        """Bake W' into base.weight so inference is a plain Linear."""
-        self._cached_base_weight = self.base.weight.detach().clone()
-        with torch.no_grad():
-            self.base.weight.copy_(self._compute_scaled_weight())
-        self.merged = True
-\end{lstlisting}
-
-\begin{lstlisting}
-def apply_dora_to_module(model, target_names,
-                         rank, alpha, dropout=0.05):
-    """Walk the model tree; swap matching Linear -> DoRALinear."""
-    target_set = set(target_names)  # e.g. {"q_proj","v_proj",...}
-    def recurse(module, prefix=""):
-        for name, child in module.named_children():
-            qname = f"{prefix}.{name}" if prefix else name
-            if (isinstance(child, nn.Linear)
-                    and (name in target_set
-                         or qname in target_set)):
-                # In-place replacement: parent.child = DoRALinear(child)
-                setattr(module, name,
-                        DoRALinear(child, rank, alpha, dropout))
-            else:
-                recurse(child, qname)  # recurse into sub-modules
-    recurse(model)
-    return model
-\end{lstlisting}
-
-% ─────────────────────────────────────────────────────────────────
-\section{Evaluation Scoring Modes (\texttt{code/eval.py})}
-\label{app:eval}
-
-The three scoring functions used to decouple knowledge from generation quality.
-
-\begin{lstlisting}
-MC_LETTERS = ["A", "B", "C", "D", "E"]
-# Appending this suffix steers the model to predict a letter next
-SUFFIX = "\nThe answer is ("
-
-def _letter_logits(model, tokenizer, text):
-    """Core of logit scoring: one forward pass, read next-token logits."""
-    # Tokenize prompt + suffix; model sees the full context
-    inputs = tokenizer(text + SUFFIX,
-                       return_tensors="pt").to(model.device)
-    # Map each letter to its token ID (single-token for A-E)
-    letter_ids = {l: tokenizer.encode(
-        l, add_special_tokens=False)[0] for l in MC_LETTERS}
-    with torch.no_grad():
-        # logits[0, -1, :] = distribution over vocab at the *last* position
-        last_logits = model(**inputs).logits[0, -1, :]
-    # Extract raw logit (not probability) for each answer letter
-    scores = {l: last_logits[tid].item()
-              for l, tid in letter_ids.items()}
-    # argmax over A-E gives the model's most likely next token
-    return max(scores, key=scores.__getitem__), scores
-
-def score_mc_logit(model, tokenizer, prompt):
-    """Logit scoring: no generation, pure knowledge probe."""
-    return _letter_logits(model, tokenizer, prompt)
-
-def score_mc_twopass(model, tokenizer, prompt,
-                     max_new_tokens=4096):
-    """Two-pass: let model reason first, then read answer logits."""
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    prompt_len = inputs["input_ids"].shape[1]
-    with torch.no_grad():
-        # Pass 1: generate a full reasoning chain (greedy)
-        out = model.generate(**inputs, do_sample=False,
-                             max_new_tokens=max_new_tokens)
-    # Decode only the newly generated tokens (skip the prompt)
-    reasoning = tokenizer.decode(out[0][prompt_len:],
-                                 skip_special_tokens=True)
-    # Pass 2: append reasoning to prompt, re-read answer logits
-    return _letter_logits(model, tokenizer, prompt + reasoning)
-
-def generate_responses(model, tokenizer, prompt, n,
-                       temperature, max_new_tokens=4096):
-    """Greedy scoring: generate full response, caller parses \\boxed{}."""
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    prompt_len = inputs["input_ids"].shape[1]
-    # Greedy (temp=0) or sampled (temp>0, for majority-vote pass@k)
-    gen_kwargs = (dict(do_sample=False, num_return_sequences=1)
-                  if n == 1 or temperature == 0.0
-                  else dict(do_sample=True, temperature=temperature,
-                            num_return_sequences=n))
-    with torch.no_grad():
-        out = model.generate(**inputs, **gen_kwargs,
-                             max_new_tokens=max_new_tokens)
-    # Slice off the prompt tokens; return only generated text
-    return [tokenizer.decode(seq[prompt_len:],
-                             skip_special_tokens=True)
-            for seq in out]
-\end{lstlisting}
+}
 
 \end{document}
