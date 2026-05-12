@@ -47,6 +47,7 @@ See `data/README.md` for details on training corpora and leakage filtering.
 **DoRA algorithm.** We implement `DoRALinear`, a `nn.Module` wrapping a frozen `nn.Linear`. The effective weight is detailed in the paper and report. This replaces the linear layers in the following modules: `q_proj, k_proj, v_proj, up_proj, down_proj` — 5 of 7 attention/FFN projections.
 
 **Baselines.** Three methods are compared:
+
 1. **LoRA** — HuggingFace PEFT `LoraConfig(use_dora=False)`
 2. **DoRA** — our from-scratch PyTorch implementation (`code/dora_layers.py`)
 3. **Peft DoRA** — HuggingFace PEFT `LoraConfig(use_dora=True)`, sanity-check reference only
@@ -58,6 +59,7 @@ See `data/README.md` for details on training corpora and leakage filtering.
 **Evaluation.** Models evaluated on competition mathematics: AMC12 2024/2025 (50 multiple choice questions, A-E) and the MATH benchmark (723 free response questions across 5 difficulty levels) — a domain not studied in the original paper. 
 
 **Novel evaluation protocol.** Standard greedy accuracy conflates knowledge with generation quality. We introduce three scoring modes, which enable finer-grained analysis than simple accuracy:
+
 - **Logit scoring** — append `"\nThe answer is ("` to the prompt, single forward pass, argmax over A–E logits. A pure *knowledge probe*: does the model assign highest probability to the correct answer token?
 - **Two-pass scoring** — generate a full reasoning chain, then re-read answer logits. Tests whether reasoning improves answer selection.
 - **Greedy scoring** — generate full response (up to 2048 tokens), parse `\boxed{}`. Standard *generation quality* metric.
@@ -69,21 +71,25 @@ See `data/README.md` for details on training corpora and leakage filtering.
 First clone the repo: 
 `git clone https://github.com/leonjiao5/cs4782-project.git`
 
-
 Then run the following commands within the project root directory:
+
 ```bash
-# 1. Install dependencies
+# 1. Create venv and activate
+python -m venv .venv
+source .venv/bin/activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 2. Build training data
+# 3. Build training data
 python -m code.data_clean.build --tier train_light  # Smaller training data corpus, only MATH-lighteval
 python -m code.data_clean.build --tier train        # Larger training data corpus, includes both MATH-lighteval and NuminaMath-CoT
 
-# 3. Train
+# 4. Train
 python code/train.py --method lora     --config code/configs/default.yaml
 python code/train.py --method dora     --config code/configs/default.yaml
 
-# 4. Evaluate
+# 5. Evaluate
 python code/eval.py --checkpoint results/checkpoints/lora_train_light \
     --benchmark amc122024
 python code/eval.py --checkpoint results/checkpoints/lora_train_light \
@@ -100,27 +106,31 @@ For an end-to-end walkthrough, open `code/colab.ipynb` in Google Colab. Upload t
 
 ### AMC12 2024 Main Results
 
-| Model | Logit | 2-pass | Greedy | Δ (logit−greedy) |
-|-------|-------|--------|--------|-----------------|
-| Base (3B-base) | 32% | — | — | — |
-| Base (3B-inst) | 34% | 46% | 44% | −10pp |
-| LoRA light (base) | 38% | 24% | 18% | +20pp |
-| LoRA light (inst) | **44%** | 32% | 10% | +34pp |
-| LoRA heavy (base) | 34% | 32% | 36% | −2pp |
-| DoRA light (base) | 38% | 28% | 12% | +26pp |
-| DoRA light (inst) | 36% | 24% | 8% | +28pp |
-| DoRA heavy (base) | 32% | 42% | **46%** | −14pp |
-| DoRA r4 (base) | **44%** | — | 16% | +28pp |
+
+| Model             | Logit   | 2-pass | Greedy  | Δ (logit−greedy) |
+| ----------------- | ------- | ------ | ------- | ---------------- |
+| Base (3B-base)    | 32%     | —      | —       | —                |
+| Base (3B-inst)    | 34%     | 46%    | 44%     | −10pp            |
+| LoRA light (base) | 38%     | 24%    | 18%     | +20pp            |
+| LoRA light (inst) | **44%** | 32%    | 10%     | +34pp            |
+| LoRA heavy (base) | 34%     | 32%    | 36%     | −2pp             |
+| DoRA light (base) | 38%     | 28%    | 12%     | +26pp            |
+| DoRA light (inst) | 36%     | 24%    | 8%      | +28pp            |
+| DoRA heavy (base) | 32%     | 42%    | **46%** | −14pp            |
+| DoRA r4 (base)    | **44%** | —      | 16%     | +28pp            |
+
 
 ### MATH Benchmark (greedy accuracy)
 
-| Model | Overall | Level 1 | Level 3 | Level 5 |
-|-------|---------|---------|---------|---------|
-| Baseline (3B-base) | 43.8% | 74.3% | 57.6% | 22.1% |
+
+| Model              | Overall   | Level 1   | Level 3   | Level 5   |
+| ------------------ | --------- | --------- | --------- | --------- |
+| Baseline (3B-base) | 43.8%     | 74.3%     | 57.6%     | 22.1%     |
 | Baseline (3B-inst) | **52.7%** | **82.6%** | **66.1%** | **31.4%** |
-| LoRA s1k (inst) | 44.8% | 77.1% | 56.5% | 24.2% |
-| LoRA heavy (base) | 35.0% | 73.4% | 43.5% | 15.1% |
-| DoRA light (base) | 30.7% | 70.6% | 36.4% | 12.7% |
+| LoRA s1k (inst)    | 44.8%     | 77.1%     | 56.5%     | 24.2%     |
+| LoRA heavy (base)  | 35.0%     | 73.4%     | 43.5%     | 15.1%     |
+| DoRA light (base)  | 30.7%     | 70.6%     | 36.4%     | 12.7%     |
+
 
 ### Key Findings
 
