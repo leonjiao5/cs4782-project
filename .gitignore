@@ -23,8 +23,3 @@ code/configs/run_config.yaml
 # Specific generated log files 
 results/logs/leakage_drops.jsonl
 !**/.gitkeep
-
-slurm/
-
-# ── Heavy SLURM results (renamed from results/) ────────────────────────────
-results_slurm/
