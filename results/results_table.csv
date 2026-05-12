@@ -1,6 +1,6 @@
 model,method,train_data,rank,base_model,amc2024_greedy,amc2024_maj16,amc2024_logit,amc2024_twopass,amc2025_greedy,amc2025_maj16,amc2025_logit,amc2025_twopass,aime2024_greedy,aime2024_maj16,math_overall,math_level1,math_level3,math_level5
 Baseline (3B-base),Baseline,—,—,3B-base,,,32.0,,,,24.5,,3.3,6.7,43.8,74.3,57.6,22.1
-Baseline (3B-instruct),Baseline,—,—,3B-Instruct,44.0,40.0,34.0,,32.7,28.6,28.6,,10.0,3.3,52.7,82.6,66.1,31.4
+Baseline (3B-instruct),Baseline,—,—,3B-Instruct,44.0,40.0,34.0,46.0,32.7,28.6,28.6,28.6,10.0,3.3,52.7,82.6,66.1,31.4
 LoRA light (base),LoRA,train_light,r8,3B-base,18.0,12.0,38.0,24.0,8.2,8.2,26.5,30.6,0.0,3.3,,,,
 LoRA light (instruct),LoRA,train_light,r8,3B-Instruct,10.0,18.0,44.0,32.0,8.2,12.2,30.6,30.6,6.7,0.0,,,,
 LoRA heavy (base),LoRA,train_heavy,r8,3B-base,36.0,32.0,34.0,32.0,26.5,22.4,28.6,28.6,,,35.0,73.4,43.5,15.1
@@ -11,7 +11,7 @@ LoRA r4 (instruct),LoRA,train_light,r4,3B-Instruct,48.0,42.0,36.0,,44.9,32.7,22.
 LoRA s1k (instruct),LoRA,train_s1k,r32,3B-Instruct,,,,,,,,,,,44.8,77.1,56.5,24.2
 DoRA light (base),DoRA,train_light,r8,3B-base,12.0,8.0,38.0,28.0,8.2,10.2,28.6,18.4,0.0,0.0,30.7,70.6,36.4,12.7
 DoRA light (instruct),DoRA,train_light,r8,3B-Instruct,8.0,6.0,36.0,24.0,2.0,4.1,24.5,10.2,,,,,,
-DoRA heavy (base),DoRA,train_heavy,r8,3B-base,46.0,,32.0,,34.7,,34.7,,,,,,
+DoRA heavy (base),DoRA,train_heavy,r8,3B-base,46.0,,32.0,42.0,34.7,,34.7,36.7,,,,,,
 DoRA r2 (base),DoRA,train_light,r2,3B-base,16.0,22.0,42.0,,10.2,16.3,24.5,,,,,,,
 DoRA r2 (instruct),DoRA,train_light,r2,3B-Instruct,,,40.0,,,,26.5,,,,,,,
 DoRA r4 (base),DoRA,train_light,r4,3B-base,16.0,14.0,44.0,,16.3,20.4,24.5,,,,,,,

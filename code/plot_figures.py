@@ -32,6 +32,7 @@ SWEEP_DIR   = Path(RESULTS_DIR) / "tables" / "sweep"
 TABLES_DIR  = Path(RESULTS_DIR) / "tables"
 MATH_DIR    = Path(RESULTS_DIR) / "tables" / "math"
 FIGURES_DIR = Path(_ROOT) / "results" / "figures"
+CSV_PATH    = Path(_ROOT) / "results" / "results_table.csv"
 
 FAMILY_COLOR = {
     "lora":     "#4C72B0",
@@ -162,6 +163,83 @@ def _miss(label: str) -> None:
     MISSING.append(label)
 
 
+# ── CSV loader ────────────────────────────────────────────────────────────────
+
+# Maps CSV "model" label → (run_id used in figure functions, math dict key or None)
+_LABEL_META: dict[str, tuple[str, str | None]] = {
+    "Baseline (3B-base)":     ("baseline",                        "qwen25_3b_base"),
+    "Baseline (3B-instruct)": ("baseline_instruct",               "qwen25_3b_instruct"),
+    "LoRA light (base)":      ("lora_train_light",                None),
+    "LoRA light (instruct)":  ("lora_train_light_instruct",       None),
+    "LoRA heavy (base)":      ("lora_train_heavy",                "lora_train_heavy"),
+    "LoRA r2 (base)":         ("lora_train_light_r2",             None),
+    "LoRA r2 (instruct)":     ("lora_train_light_r2_inst",        None),
+    "LoRA r4 (base)":         ("lora_train_light_r4",             None),
+    "LoRA r4 (instruct)":     ("lora_train_light_r4_inst",        None),
+    "LoRA s1k (instruct)":    ("lora_train_s1k_s1k_inst",         "lora_train_s1k_inst"),
+    "DoRA light (base)":      ("peft_dora_train_light",           "peft_dora_train_light"),
+    "DoRA light (instruct)":  ("peft_dora_train_light_instruct",  None),
+    "DoRA heavy (base)":      ("peft_dora_train_heavy",           None),
+    "DoRA r2 (base)":         ("peft_dora_train_light_r2",        None),
+    "DoRA r2 (instruct)":     ("peft_dora_train_light_r2_inst",   None),
+    "DoRA r4 (base)":         ("peft_dora_train_light_r4",        None),
+    "DoRA r4 (instruct)":     ("peft_dora_train_light_r4_inst",   None),
+}
+
+_BM_MAP = {"amc2024": "amc122024", "amc2025": "amc122025", "aime2024": "aime2024"}
+_BM_MODE_COLS = [
+    ("amc2024", "greedy"), ("amc2024", "maj16"), ("amc2024", "logit"), ("amc2024", "twopass"),
+    ("amc2025", "greedy"), ("amc2025", "maj16"), ("amc2025", "logit"), ("amc2025", "twopass"),
+    ("aime2024", "greedy"), ("aime2024", "maj16"),
+]
+
+
+def load_from_csv(csv_path: Path = CSV_PATH) -> tuple[list[dict], dict[str, dict]]:
+    """Load eval results from the pre-built results_table.csv.
+
+    Returns (records, math) with the same shapes expected by best() and the
+    math dict used by fig_g / fig_f.  step is always None (no sweep data in
+    CSV), so series() returns empty — fig_c must stay commented out.
+    """
+    records: list[dict] = []
+    math: dict[str, dict] = {}
+
+    with open(csv_path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            label = row["model"]
+            meta = _LABEL_META.get(label)
+            if meta is None:
+                continue
+            run_id, math_key = meta
+
+            for bm_short, mode in _BM_MODE_COLS:
+                val = row.get(f"{bm_short}_{mode}", "").strip()
+                if val:
+                    records.append({
+                        "run_id": run_id,
+                        "step": None, "tag": "flat",
+                        "bm": _BM_MAP[bm_short],
+                        "mode": mode,
+                        "acc": float(val),
+                    })
+
+            if math_key:
+                overall = row.get("math_overall", "").strip()
+                if overall:
+                    entry: dict = {
+                        "overall": float(overall),
+                        "by_level": {},
+                    }
+                    for lv in ("1", "3", "5"):
+                        v = row.get(f"math_level{lv}", "").strip()
+                        if v:
+                            entry["by_level"][lv] = float(v)
+                    math[math_key] = entry
+
+    return records, math
+
+
 # ── Shared bar-label helper ───────────────────────────────────────────────────
 
 def _label_bar(ax, bar, val, fontsize=8.5, offset=0.8, color=None):
@@ -181,14 +259,14 @@ def fig_a_scoring_methods(sweep: list[dict], flat: list[dict], out: Path) -> Non
     # (label, run_id, family, no_twopass)
     # Ordered: Baseline → LoRA → DoRA (eye lands on DoRA last)
     groups = [
-        ("Baseline\n(Instruct)",   "baseline_instruct",              "baseline", False),
+        ("Baseline\n(Instruct)",   "baseline_instruct",              "baseline", True),
         # ("LoRA\nlight (base)",     "lora_train_light",               "lora",     False),
         # ("LoRA\nlight (inst)",     "lora_train_light_instruct",      "lora",     False),
         # ("LoRA\nheavy",            "lora_train_heavy",               "lora",     False),
         ("DoRA\nlight (base)",     "peft_dora_train_light",          "dora",     False),
         ("DoRA\nlight (inst)",     "peft_dora_train_light_instruct", "dora",     False),
 #        ("DoRA\nr4 (base)",        "peft_dora_train_light_r4",       "dora",     False),
-        ("DoRA\nheavy (base)",     "peft_dora_train_heavy",          "dora",     False),
+        ("DoRA\nheavy (base)",     "peft_dora_train_heavy",          "dora",     True),
     ]
 
     x  = np.arange(len(groups))
@@ -241,7 +319,7 @@ def fig_a_scoring_methods(sweep: list[dict], flat: list[dict], out: Path) -> Non
                     f"Δ{gap:+.0f}pp", ha="center", fontsize=8.5,
                     color=col, fontweight="bold")
 
-    bl_logit = _load_acc(TABLES_DIR / "baseline_amc122024_logit.json") or 32.0
+    bl_logit = best(all_rec, "baseline", "amc122024", "logit") or 32.0
     ax.axhline(bl_logit, color="#555", linestyle="--", linewidth=1.2,
                label=f"Baseline (base) logit = {bl_logit:.0f}%")
 
@@ -698,11 +776,11 @@ def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
     bl_label = "Baseline\n(inst)" if "instruct" in baseline_run else "Baseline\n(base)"
     # (label, run_id, family, no_twopass)
     pairs = [
-        (bl_label,            baseline_run,            "baseline", False),
+        (bl_label,            baseline_run,            "baseline", True),
         ("LoRA\nlight",       "lora_train_light",      "lora",     False),
         ("DoRA\nlight",       "peft_dora_train_light",  "dora",    False),
         ("LoRA\nheavy",       "lora_train_heavy",      "lora",     False),
-        ("DoRA\nheavy",       "peft_dora_train_heavy",  "dora",    False),
+        ("DoRA\nheavy",       "peft_dora_train_heavy",  "dora",    True),
     ]
 
     x = np.arange(len(pairs))
@@ -758,7 +836,7 @@ def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
 
 
     # Base model reference lines (only logit available; greedy/twopass not evaluated)
-    bl_logit = _load_acc(TABLES_DIR / "baseline_amc122024_logit.json") or 32.0
+    bl_logit = best(all_rec, "baseline", "amc122024", "logit") or 32.0
     ax.axhline(bl_logit, color=SCORING_COLOR["logit"], linestyle=":",
                lw=1.6, alpha=0.75)
 
@@ -1000,13 +1078,10 @@ def main() -> None:
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Loading data...")
-    sweep = load_sweep()
-    flat  = load_flat()
-    math  = load_math()
-    all_r = sweep + flat
-    print(f"  {len(sweep)} sweep records, {len(flat)} flat records, "
-          f"{len(math)} math results")
+    print(f"Loading data from {CSV_PATH} ...")
+    flat, math = load_from_csv()
+    sweep = []
+    print(f"  {len(flat)} records, {len(math)} math results")
 
     fig_a_scoring_methods(sweep, flat, args.out_dir)
     #fig_b_gap_vs_dataset(sweep, flat, args.out_dir)
@@ -1019,8 +1094,6 @@ def main() -> None:
     fig_i_dora_vs_lora(sweep, flat, args.out_dir)
     fig_i_dora_vs_lora(sweep, flat, args.out_dir, baseline_run="baseline_instruct")
     fig_j_logit_explainer(args.out_dir)
-
-    save_results_table(sweep, flat, math, TABLES_DIR / "results_table.csv")
 
     print(f"\nAll figures written to {args.out_dir.resolve()}")
     if MISSING:
