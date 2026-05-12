@@ -467,7 +467,7 @@ def fig_c_progression(sweep: list[dict], out: Path) -> None:
 
 # ── Figure D: Rank ablation ───────────────────────────────────────────────────
 
-def fig_d_rank_ablation(sweep: list[dict], out: Path) -> None:
+def fig_d_rank_ablation(all_rec: list[dict], out: Path) -> None:
     BM = "amc122024"
     families = [
         ("LoRA",  "lora_train_light",       "lora"),
@@ -488,8 +488,8 @@ def fig_d_rank_ablation(sweep: list[dict], out: Path) -> None:
         x = np.arange(len(ranks))
         w = 0.35
 
-        base_vals = [best(sweep, run_name(base_prefix, r, False), BM, "logit") for r in ranks]
-        inst_vals = [best(sweep, run_name(base_prefix, r, True),  BM, "logit") for r in ranks]
+        base_vals = [best(all_rec, run_name(base_prefix, r, False), BM, "logit") for r in ranks]
+        inst_vals = [best(all_rec, run_name(base_prefix, r, True),  BM, "logit") for r in ranks]
 
         for vals, offset, hatch, label in [
             (base_vals, -w/2, "",    "Base model"),
@@ -519,8 +519,7 @@ def fig_d_rank_ablation(sweep: list[dict], out: Path) -> None:
             ax.set_ylabel("Peak logit accuracy % (AMC2024)")
         ax.legend(fontsize=9)
 
-    fig.suptitle("DoRA: Logit Score is Rank-Invariant — Knowledge is Retained Regardless of Rank\n"
-                 "r2 ≈ r4 ≈ r8 (~42–44% logit) for DoRA; LoRA shown for comparison",
+    fig.suptitle("DoRA: Logit Score is Rank-Invariant",
                  fontweight="bold")
     fig.tight_layout()
     fig.savefig(out / "figD_rank_ablation.png", dpi=150, bbox_inches="tight")
@@ -1081,7 +1080,7 @@ def main() -> None:
     fig_a_scoring_methods(sweep, flat, args.out_dir)
     #fig_b_gap_vs_dataset(sweep, flat, args.out_dir)
     #fig_c_progression(sweep, args.out_dir)
-    #fig_d_rank_ablation(sweep, args.out_dir)
+    fig_d_rank_ablation(sweep + flat, args.out_dir)
     #fig_e_greedy_degradation(sweep, flat, args.out_dir)
     #fig_f_math_benchmark(sweep, flat, math, args.out_dir)
     fig_g_math_by_level(math, args.out_dir)
