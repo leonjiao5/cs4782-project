@@ -81,7 +81,7 @@ python -m code.data_clean.build --tier train        # Larger training data corpu
 
 # 3. Train
 python code/train.py --method lora     --config code/configs/default.yaml
-python code/train.py --method peft_dora --config code/configs/default.yaml
+python code/train.py --method dora     --config code/configs/default.yaml
 
 # 4. Evaluate
 python code/eval.py --checkpoint results/checkpoints/lora_train_light \
@@ -103,13 +103,13 @@ For an end-to-end walkthrough, open `code/colab.ipynb` in Google Colab. Upload t
 | Model | Logit | 2-pass | Greedy | Δ (logit−greedy) |
 |-------|-------|--------|--------|-----------------|
 | Base (3B-base) | 32% | — | — | — |
-| Base (3B-inst) | 34% | — | 44% | −10pp |
+| Base (3B-inst) | 34% | 46% | 44% | −10pp |
 | LoRA light (base) | 38% | 24% | 18% | +20pp |
 | LoRA light (inst) | **44%** | 32% | 10% | +34pp |
 | LoRA heavy (base) | 34% | 32% | 36% | −2pp |
 | DoRA light (base) | 38% | 28% | 12% | +26pp |
 | DoRA light (inst) | 36% | 24% | 8% | +28pp |
-| DoRA heavy (base) | 32% | — | **46%** | −14pp |
+| DoRA heavy (base) | 32% | 42% | **46%** | −14pp |
 | DoRA r4 (base) | **44%** | — | 16% | +28pp |
 
 ### MATH Benchmark (greedy accuracy)
