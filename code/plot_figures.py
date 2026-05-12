@@ -305,10 +305,10 @@ def fig_a_scoring_methods(sweep: list[dict], flat: list[dict], out: Path) -> Non
                 container[i].set_alpha(0.4)
 
     # Mark groups where twopass was not evaluated
-    for i, g in enumerate(groups):
-        if g[3]:
-            ax.text(x[i], 1, "†", ha="center", va="bottom", fontsize=11,
-                    color=SCORING_COLOR["twopass"], fontweight="bold")
+    # for i, g in enumerate(groups):
+    #     if g[3]:
+    #         ax.text(x[i], 1, "†", ha="center", va="bottom", fontsize=11,
+    #                 color=SCORING_COLOR["twopass"], fontweight="bold")
 
     for i, (lv, gv) in enumerate(zip(logit_v, greedy_v)):
         if lv is not None and gv is not None:
@@ -769,27 +769,25 @@ def fig_h_amc_generalization(sweep: list[dict], flat: list[dict], out: Path) -> 
 
 def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
                         baseline_run: str = "baseline") -> None:
-    """Clean head-to-head: logit vs twopass vs greedy for matched LoRA/DoRA pairs."""
+    """Head-to-head: logit vs twopass vs greedy for matched LoRA/DoRA pairs."""
     all_rec = sweep + flat
     BM = "amc122024"
 
-    bl_label = "Baseline\n(inst)" if "instruct" in baseline_run else "Baseline\n(base)"
     # (label, run_id, family, no_twopass)
     pairs = [
-        (bl_label,            baseline_run,            "baseline", True),
-        ("LoRA\nlight",       "lora_train_light",      "lora",     False),
-        ("DoRA\nlight",       "peft_dora_train_light",  "dora",    False),
-        ("LoRA\nheavy",       "lora_train_heavy",      "lora",     False),
-        ("DoRA\nheavy",       "peft_dora_train_heavy",  "dora",    True),
+        ("LoRA\nlight",  "lora_train_light",      "lora", False),
+        ("DoRA\nlight",  "peft_dora_train_light",  "dora", False),
+        ("LoRA\nheavy",  "lora_train_heavy",       "lora", False),
+        ("DoRA\nheavy",  "peft_dora_train_heavy",  "dora", True),
     ]
 
     x = np.arange(len(pairs))
     w = 0.25
-    fig, ax = plt.subplots(figsize=(12, 5.5))
+    fig, ax = plt.subplots(figsize=(10, 5.5))
 
-    # Shade DoRA columns
+    # Shade heavy-dataset columns
     for i, p in enumerate(pairs):
-        if p[1] == "lora_train_heavy" or p[1] == "peft_dora_train_heavy":
+        if p[1] in ("lora_train_heavy", "peft_dora_train_heavy"):
             ax.axvspan(i - 0.5, i + 0.5, alpha=0.1, color=FAMILY_COLOR["dora"], zorder=0)
 
     logit_vals   = [best(all_rec, p[1], BM, "logit")   for p in pairs]
@@ -828,15 +826,12 @@ def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
                     fontsize=11 if pairs[i][2] == "dora" else 9,
                     color=col, fontweight=weight)
 
-    # Dividers: baseline | light | heavy
-    ax.axvline(0.5, color="#bbb", linestyle="--", lw=1, zorder=1)
-    ax.axvline(2.5, color="#bbb", linestyle="--", lw=1, zorder=1)
-    ax.text(1.5, 62, "Train: light dataset", ha="center", fontsize=9, color="#666")
-    ax.text(3.5, 62, "Train: heavy dataset", ha="center", fontsize=9, color="#666")
+    # Divider between light and heavy datasets
+    ax.axvline(1.5, color="#bbb", linestyle="--", lw=1, zorder=1)
+    ax.text(0.5, 62, "Train: light dataset", ha="center", fontsize=9, color="#666")
+    ax.text(2.5, 62, "Train: heavy dataset", ha="center", fontsize=9, color="#666")
 
-
-    # Base model reference lines (only logit available; greedy/twopass not evaluated)
-    bl_logit = best(all_rec, "baseline", "amc122024", "logit") or 32.0
+    bl_logit = best(all_rec, baseline_run, "amc122024", "logit") or 32.0
     ax.axhline(bl_logit, color=SCORING_COLOR["logit"], linestyle=":",
                lw=1.6, alpha=0.75)
 
@@ -845,7 +840,7 @@ def fig_i_dora_vs_lora(sweep: list[dict], flat: list[dict], out: Path,
         mpatches.Patch(facecolor="#555", edgecolor="#FFF", alpha=0.75, hatch="//", label="Two-pass (reason → read logits)"),
         mpatches.Patch(facecolor="#555", edgecolor="#FFF", alpha=0.95, hatch="xx", label="Greedy (generate & parse)"),
         plt.Line2D([0], [0], color=SCORING_COLOR["logit"], linestyle=":", lw=1.6,
-                   label=f"Base model logit = {bl_logit:.0f}% (zero-shot)"),
+                   label=f"Baseline logit = {bl_logit:.0f}% (zero-shot)"),
     ]
     ax.legend(handles=legend_patches, fontsize=10, loc="upper left")
 
@@ -1092,7 +1087,6 @@ def main() -> None:
     fig_g_math_by_level(math, args.out_dir)
     #fig_h_amc_generalization(sweep, flat, args.out_dir)
     fig_i_dora_vs_lora(sweep, flat, args.out_dir)
-    fig_i_dora_vs_lora(sweep, flat, args.out_dir, baseline_run="baseline_instruct")
     fig_j_logit_explainer(args.out_dir)
 
     print(f"\nAll figures written to {args.out_dir.resolve()}")
