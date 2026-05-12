@@ -1,5 +1,5 @@
 {
-  "checkpoint": "results_slurm/checkpoints/peft_dora_train_heavy/checkpoint-900",
+  "checkpoint": "results/checkpoints/peft_dora_train_heavy/checkpoint-900",
   "benchmark": "amc122024",
   "scoring": "twopass",
   "n_samples": 1,
